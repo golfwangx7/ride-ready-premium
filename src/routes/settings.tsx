@@ -118,6 +118,7 @@ function Settings() {
             label={t("settings.manage_subscription")}
             hint="Rydr Premium"
             highlight
+            onClick={() => navigate({ to: "/subscription" })}
           />
         </Group>
 
