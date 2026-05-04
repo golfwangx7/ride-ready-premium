@@ -4,6 +4,8 @@ import { RideProvider } from "@/context/ride-context";
 import { VehicleProvider } from "@/context/vehicle-context";
 import { ProfileProvider } from "@/context/profile-context";
 import { I18nProvider } from "@/context/i18n-context";
+import { PremiumProvider } from "@/context/premium-context";
+import { Paywall } from "@/components/paywall";
 
 import appCss from "../styles.css?url";
 
@@ -78,15 +80,18 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <I18nProvider>
-      <ModeProvider>
-        <RideProvider>
-          <VehicleProvider>
-            <ProfileProvider>
-              <Outlet />
-            </ProfileProvider>
-          </VehicleProvider>
-        </RideProvider>
-      </ModeProvider>
+      <PremiumProvider>
+        <ModeProvider>
+          <RideProvider>
+            <VehicleProvider>
+              <ProfileProvider>
+                <Outlet />
+                <Paywall />
+              </ProfileProvider>
+            </VehicleProvider>
+          </RideProvider>
+        </ModeProvider>
+      </PremiumProvider>
     </I18nProvider>
   );
 }
