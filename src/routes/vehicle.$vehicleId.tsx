@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, Bike, Car, Check, RotateCcw, Star, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Bike, Car, Check, RotateCcw, Star, AlertTriangle, Trash2 } from "lucide-react";
 import { useVehicles, formatDistance } from "@/context/vehicle-context";
 
 export const Route = createFileRoute("/vehicle/$vehicleId")({
@@ -9,10 +9,11 @@ export const Route = createFileRoute("/vehicle/$vehicleId")({
 
 function VehicleDetail() {
   const { vehicleId } = Route.useParams();
-  const { getById, activeId, setActive, resetStats } = useVehicles();
+  const { getById, activeId, setActive, resetStats, removeVehicle } = useVehicles();
   const navigate = useNavigate();
   const vehicle = getById(vehicleId);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   if (!vehicle) {
     return (
@@ -126,6 +127,17 @@ function VehicleDetail() {
             </div>
           </button>
         </section>
+
+        {/* Danger zone */}
+        <section className="animate-fade-up mt-8" style={{ animationDelay: "240ms" }}>
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/30 bg-destructive/5 px-5 py-4 text-sm font-medium text-destructive transition-all hover:bg-destructive/10 active:scale-[0.99]"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete vehicle
+          </button>
+        </section>
       </main>
 
       {confirmReset && (
@@ -137,6 +149,20 @@ function VehicleDetail() {
           onConfirm={() => {
             resetStats(vehicle.id);
             setConfirmReset(false);
+          }}
+        />
+      )}
+
+      {confirmDelete && (
+        <ConfirmDialog
+          title="Are you sure you want to delete this vehicle?"
+          message="This action cannot be undone."
+          confirmLabel="Delete"
+          onCancel={() => setConfirmDelete(false)}
+          onConfirm={() => {
+            removeVehicle(vehicle.id);
+            setConfirmDelete(false);
+            navigate({ to: "/profile" });
           }}
         />
       )}
