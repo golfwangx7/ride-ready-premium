@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Play, Home, Newspaper, User, MapPin, TrendingUp, Clock } from "lucide-react";
+import { useState } from "react";
+import { Play, Home, Newspaper, User, MapPin, TrendingUp, Clock, Car, Bike, Check, ChevronDown, X } from "lucide-react";
 import roadBg from "@/assets/road-bg.jpg";
 import mapMini from "@/assets/map-mini.jpg";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useMode } from "@/context/mode-context";
 import { useI18n } from "@/context/i18n-context";
+import { useVehicles, type Vehicle } from "@/context/vehicle-context";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -13,6 +15,9 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { mode } = useMode();
   const { t } = useI18n();
+  const { vehicles, activeId, setActive } = useVehicles();
+  const active = vehicles.find((v) => v.id === activeId) ?? vehicles[0];
+  const [picking, setPicking] = useState(false);
   const machineCopy = mode === "moto" ? "Helmet on. Throttle ready." : "Engine warm. Cabin set.";
   const lastRoute = mode === "moto" ? "Pacific Coast Hwy" : "Skyline Boulevard";
   const lastDist = mode === "moto" ? "84.2 km" : "126.4 km";
@@ -82,6 +87,24 @@ function Index() {
           <p className="mt-5 text-xs uppercase tracking-[0.25em] text-muted-foreground">
             {t("home.tap_to_begin")}
           </p>
+
+          {/* Active vehicle pill */}
+          {active && (
+            <div className="mt-5 flex items-center gap-2 rounded-full border border-border bg-card/60 px-2 py-1.5 backdrop-blur-md">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary">
+                {active.type === "car" ? <Car className="h-3.5 w-3.5" /> : <Bike className="h-3.5 w-3.5" />}
+              </span>
+              <span className="text-sm font-medium">{active.name}</span>
+              <button
+                type="button"
+                onClick={() => setPicking(true)}
+                className="ml-1 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary transition-all hover:bg-primary/20 active:scale-95"
+              >
+                {t("home.change")}
+                <ChevronDown className="h-3 w-3" />
+              </button>
+            </div>
+          )}
         </section>
 
         {/* Last ride card */}
