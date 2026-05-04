@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { Settings, Plus, Bike, Car, MapPin, ChevronRight, Home, Newspaper, User, Star } from "lucide-react";
+import { useRef, useState } from "react";
+import { Settings, Plus, Bike, Car, MapPin, ChevronRight, Home, Newspaper, User, Star, Trash2, AlertTriangle } from "lucide-react";
 import avatar from "@/assets/avatar.jpg";
 import { ModeToggle, modeStats } from "@/components/mode-toggle";
 import { useMode } from "@/context/mode-context";
@@ -23,7 +23,9 @@ function Profile() {
   const [editing, setEditing] = useState(false);
   const { src: avatarSrc, setSrc: setAvatarSrc } = useAvatar(avatar);
   const [pickingAvatar, setPickingAvatar] = useState(false);
-  const { vehicles, activeId } = useVehicles();
+  const { vehicles, activeId, removeVehicle } = useVehicles();
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const pendingDelete = vehicles.find((v) => v.id === confirmDeleteId);
   const { profile } = useProfile();
   const [addingVehicle, setAddingVehicle] = useState(false);
   const { t } = useI18n();
@@ -154,7 +156,13 @@ function Profile() {
             ) : (
               <>
                 {vehicles.map((v, i) => (
-                  <VehicleCard key={v.id} vehicle={v} delay={300 + i * 80} active={v.id === activeId} />
+                  <VehicleCard
+                    key={v.id}
+                    vehicle={v}
+                    delay={300 + i * 80}
+                    active={v.id === activeId}
+                    onRequestDelete={() => setConfirmDeleteId(v.id)}
+                  />
                 ))}
 
                 {/* Add vehicle ghost card */}
@@ -196,6 +204,17 @@ function Profile() {
       />
 
       <AddVehicleDialog open={addingVehicle} onClose={() => setAddingVehicle(false)} />
+
+      {pendingDelete && (
+        <DeleteVehicleDialog
+          name={pendingDelete.name}
+          onCancel={() => setConfirmDeleteId(null)}
+          onConfirm={() => {
+            removeVehicle(pendingDelete.id);
+            setConfirmDeleteId(null);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -221,61 +240,194 @@ function Stat({
   );
 }
 
+const SWIPE_REVEAL = 88; // px width of delete action
+const SWIPE_THRESHOLD = 40;
+
 function VehicleCard({
   vehicle,
   delay,
   active,
+  onRequestDelete,
 }: {
   vehicle: Vehicle;
   delay: number;
   active?: boolean;
+  onRequestDelete: () => void;
 }) {
   const Icon = vehicle.type === "car" ? Car : Bike;
+  const [offset, setOffset] = useState(0);
+  const [revealed, setRevealed] = useState(false);
+  const startX = useRef<number | null>(null);
+  const startY = useRef<number | null>(null);
+  const dragging = useRef(false);
+  const moved = useRef(false);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    startX.current = e.clientX;
+    startY.current = e.clientY;
+    dragging.current = true;
+    moved.current = false;
+  };
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!dragging.current || startX.current === null || startY.current === null) return;
+    const dx = e.clientX - startX.current;
+    const dy = e.clientY - startY.current;
+    if (!moved.current) {
+      if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+      // If predominantly vertical, abandon swipe so the page can scroll
+      if (Math.abs(dy) > Math.abs(dx)) {
+        dragging.current = false;
+        return;
+      }
+      moved.current = true;
+      try { (e.target as Element).setPointerCapture?.(e.pointerId); } catch { /* */ }
+    }
+    const base = revealed ? -SWIPE_REVEAL : 0;
+    const next = Math.min(0, Math.max(-SWIPE_REVEAL - 20, base + dx));
+    setOffset(next);
+  };
+
+  const endDrag = () => {
+    if (!dragging.current) return;
+    dragging.current = false;
+    if (!moved.current) return;
+    const shouldReveal = offset < -SWIPE_THRESHOLD;
+    setRevealed(shouldReveal);
+    setOffset(shouldReveal ? -SWIPE_REVEAL : 0);
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (moved.current || revealed) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (revealed) {
+        setRevealed(false);
+        setOffset(0);
+      }
+    }
+  };
+
   return (
-    <Link
-      to="/vehicle/$vehicleId"
-      params={{ vehicleId: vehicle.id }}
-      className="animate-fade-up group relative block overflow-hidden rounded-2xl border border-border backdrop-blur-md transition-all hover:border-primary/40 hover:shadow-[var(--shadow-glow-sm)]"
-      style={{ background: "var(--gradient-surface)", animationDelay: `${delay}ms` }}
+    <div
+      className="animate-fade-up relative overflow-hidden rounded-2xl"
+      style={{ animationDelay: `${delay}ms` }}
     >
-      <div className="flex items-stretch">
-        <div className="relative h-28 w-36 shrink-0 overflow-hidden">
-          <img
-            src={vehicle.image}
-            alt={vehicle.name}
-            width={1024}
-            height={512}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/80" />
+      {/* Delete action behind card */}
+      <button
+        type="button"
+        aria-label={`Delete ${vehicle.name}`}
+        onClick={() => { setRevealed(false); setOffset(0); onRequestDelete(); }}
+        className="absolute inset-y-0 right-0 flex w-[88px] items-center justify-center bg-destructive text-destructive-foreground transition-opacity"
+        style={{ opacity: offset < -8 ? 1 : 0 }}
+      >
+        <div className="flex flex-col items-center gap-1">
+          <Trash2 className="h-5 w-5" />
+          <span className="text-[10px] font-medium uppercase tracking-wider">Delete</span>
         </div>
-        <div className="flex flex-1 flex-col justify-between p-4">
-          <div>
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-primary">
-              <Icon className="h-3 w-3" />
-              {vehicle.type === "car" ? "Car" : "Motorcycle"}
-              {active && (
-                <span className="ml-1 inline-flex items-center gap-0.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px]">
-                  <Star className="h-2.5 w-2.5 fill-primary" /> Active
-                </span>
-              )}
-            </div>
-            <h3 className="mt-1.5 font-display text-base font-semibold leading-tight">
-              {vehicle.name}
-            </h3>
-            <p className="text-[11px] text-muted-foreground">{vehicle.sub}</p>
+      </button>
+
+      <Link
+        to="/vehicle/$vehicleId"
+        params={{ vehicleId: vehicle.id }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onClick={handleClick}
+        className="group relative block touch-pan-y select-none overflow-hidden rounded-2xl border border-border backdrop-blur-md transition-[border-color,box-shadow] hover:border-primary/40 hover:shadow-[var(--shadow-glow-sm)]"
+        style={{
+          background: "var(--gradient-surface)",
+          transform: `translateX(${offset}px)`,
+          transition: dragging.current ? "none" : "transform 250ms cubic-bezier(0.22, 1, 0.36, 1)",
+        }}
+      >
+        <div className="flex items-stretch">
+          <div className="relative h-28 w-36 shrink-0 overflow-hidden">
+            <img
+              src={vehicle.image}
+              alt={vehicle.name}
+              width={1024}
+              height={512}
+              loading="lazy"
+              draggable={false}
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/80" />
           </div>
-          <div className="flex items-center justify-between">
-            <div className="flex gap-3 text-[11px] text-muted-foreground">
-              <span><span className="text-foreground font-medium">{vehicle.rides}</span> rides</span>
-              <span><span className="text-foreground font-medium">{formatDistance(vehicle.distance)}</span></span>
+          <div className="flex flex-1 flex-col justify-between p-4">
+            <div>
+              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-primary">
+                <Icon className="h-3 w-3" />
+                {vehicle.type === "car" ? "Car" : "Motorcycle"}
+                {active && (
+                  <span className="ml-1 inline-flex items-center gap-0.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px]">
+                    <Star className="h-2.5 w-2.5 fill-primary" /> Active
+                  </span>
+                )}
+              </div>
+              <h3 className="mt-1.5 font-display text-base font-semibold leading-tight">
+                {vehicle.name}
+              </h3>
+              <p className="text-[11px] text-muted-foreground">{vehicle.sub}</p>
             </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+            <div className="flex items-center justify-between">
+              <div className="flex gap-3 text-[11px] text-muted-foreground">
+                <span><span className="text-foreground font-medium">{vehicle.rides}</span> rides</span>
+                <span><span className="text-foreground font-medium">{formatDistance(vehicle.distance)}</span></span>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+            </div>
           </div>
+        </div>
+      </Link>
+    </div>
+  );
+}
+
+function DeleteVehicleDialog({
+  name,
+  onCancel,
+  onConfirm,
+}: {
+  name: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+      <button
+        aria-label="Close"
+        onClick={onCancel}
+        className="absolute inset-0 animate-fade-in bg-background/70 backdrop-blur-md"
+      />
+      <div className="animate-fade-up relative w-full max-w-md rounded-t-3xl border border-border bg-card/90 p-6 backdrop-blur-2xl sm:rounded-3xl">
+        <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-border sm:hidden" />
+        <div className="flex items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+            <AlertTriangle className="h-4 w-4" />
+          </span>
+          <div className="flex-1">
+            <h2 className="font-display text-lg font-medium">Delete {name}?</h2>
+            <p className="mt-1 text-sm text-muted-foreground">This action cannot be undone.</p>
+          </div>
+        </div>
+        <div className="mt-6 flex gap-2.5">
+          <button
+            onClick={onCancel}
+            className="flex-1 rounded-full border border-border py-3 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 rounded-full bg-destructive py-3 text-sm font-medium text-destructive-foreground transition-transform hover:scale-[1.02]"
+          >
+            Delete
+          </button>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 
