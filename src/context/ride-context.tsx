@@ -269,12 +269,17 @@ export function RideProvider({ children }: { children: ReactNode }) {
     setStatus("paused");
     stopWatch();
     stopTick();
-    // Break continuity so a long pause doesn't get counted as a single segment.
     lastKeptRef.current = null;
+    stationarySinceRef.current = null;
+    autoPausedRef.current = false;
+    setAutoPaused(false);
   }, [stopWatch, stopTick]);
 
   const resume = useCallback(() => {
     setStatus("recording");
+    autoPausedRef.current = false;
+    setAutoPaused(false);
+    stationarySinceRef.current = null;
     startWatch();
     startTick();
   }, [startWatch, startTick]);
