@@ -22,6 +22,7 @@ import {
 import { useSocials, SocialEditor } from "@/components/socials";
 import { useProfile } from "@/context/profile-context";
 import { useI18n, LANG_OPTIONS, type Lang } from "@/context/i18n-context";
+import { usePremium } from "@/context/premium-context";
 
 export const Route = createFileRoute("/settings")({
   component: Settings,
@@ -34,19 +35,34 @@ function Settings() {
   const { profile } = useProfile();
   const { socials, setSocials } = useSocials();
   const { t, lang, setLang } = useI18n();
+  const { isPremium, setPremium } = usePremium();
   const [editingSocials, setEditingSocials] = useState(false);
   const [units, setUnits] = useState<"km" | "mi">("km");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
+  const [devMode, setDevMode] = useState(false);
+  const [versionTaps, setVersionTaps] = useState(0);
 
   useEffect(() => {
     try {
       const u = localStorage.getItem(UNITS_KEY);
       if (u === "km" || u === "mi") setUnits(u);
+      if (localStorage.getItem("dev.mode") === "1") setDevMode(true);
     } catch {
       // ignore
     }
   }, []);
+
+  const enableDevMode = () => {
+    const next = versionTaps + 1;
+    if (next >= 7 && !devMode) {
+      setDevMode(true);
+      try { localStorage.setItem("dev.mode", "1"); } catch { /* */ }
+      setVersionTaps(0);
+      return;
+    }
+    setVersionTaps(next);
+  };
 
   const saveUnits = (u: "km" | "mi") => {
     setUnits(u);
@@ -178,9 +194,56 @@ function Settings() {
           </div>
         </section>
 
-        <p className="mt-10 text-center text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-          Apex · v1.0.0
-        </p>
+        {/* Developer (hidden — tap version 7x to reveal) */}
+        {devMode && (
+          <section className="animate-fade-up mt-8" style={{ animationDelay: "340ms" }}>
+            <p className="mb-3 px-1 text-[10px] uppercase tracking-[0.25em] text-primary/80">
+              Developer
+            </p>
+            <div
+              className="overflow-hidden rounded-2xl border border-primary/20 backdrop-blur-md"
+              style={{ background: "var(--gradient-surface)" }}
+            >
+              <div className="flex items-center gap-3 px-4 py-3.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 text-primary">
+                  <Crown className="h-4 w-4" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Simulate Premium</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Toggle to test free vs premium flows
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={isPremium}
+                  onClick={() => setPremium(!isPremium)}
+                  className={`relative h-6 w-11 rounded-full transition-colors ${
+                    isPremium ? "bg-primary" : "bg-muted/60"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-0.5 h-5 w-5 rounded-full bg-background shadow transition-transform ${
+                      isPremium ? "translate-x-[22px]" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+              </div>
+              <div className="border-t border-border/60 px-4 py-2.5 text-[11px] text-muted-foreground">
+                Currently: <span className={isPremium ? "text-primary font-medium" : "font-medium text-foreground"}>{isPremium ? "Premium" : "Free"}</span>
+              </div>
+            </div>
+          </section>
+        )}
+
+        <button
+          type="button"
+          onClick={enableDevMode}
+          className="mt-10 block w-full text-center text-[10px] uppercase tracking-[0.25em] text-muted-foreground"
+        >
+          Apex · v1.0.0{devMode ? " · dev" : ""}
+        </button>
       </main>
 
       <SocialEditor
