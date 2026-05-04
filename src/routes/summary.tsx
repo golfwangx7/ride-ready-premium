@@ -95,7 +95,7 @@ function Summary() {
               <span className="text-xs uppercase tracking-[0.2em]">Max speed</span>
             </div>
             <p className="font-display text-base font-medium tabular-nums">
-              142<span className="ml-1 text-[10px] uppercase tracking-wider text-muted-foreground">km/h</span>
+              {maxKmh}<span className="ml-1 text-[10px] uppercase tracking-wider text-muted-foreground">km/h</span>
             </p>
           </div>
         </section>
