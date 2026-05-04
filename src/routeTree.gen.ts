@@ -14,6 +14,7 @@ import { Route as SummaryRouteImport } from './routes/summary'
 import { Route as ShareRouteImport } from './routes/share'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as NameRideRouteImport } from './routes/name-ride'
 import { Route as FeedRouteImport } from './routes/feed'
 import { Route as EditProfileRouteImport } from './routes/edit-profile'
@@ -43,6 +44,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NameRideRoute = NameRideRouteImport.update({
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/edit-profile': typeof EditProfileRoute
   '/feed': typeof FeedRoute
   '/name-ride': typeof NameRideRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/share': typeof ShareRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/edit-profile': typeof EditProfileRoute
   '/feed': typeof FeedRoute
   '/name-ride': typeof NameRideRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/share': typeof ShareRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/edit-profile': typeof EditProfileRoute
   '/feed': typeof FeedRoute
   '/name-ride': typeof NameRideRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/share': typeof ShareRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/edit-profile'
     | '/feed'
     | '/name-ride'
+    | '/privacy'
     | '/profile'
     | '/settings'
     | '/share'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/edit-profile'
     | '/feed'
     | '/name-ride'
+    | '/privacy'
     | '/profile'
     | '/settings'
     | '/share'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/edit-profile'
     | '/feed'
     | '/name-ride'
+    | '/privacy'
     | '/profile'
     | '/settings'
     | '/share'
@@ -152,6 +164,7 @@ export interface RootRouteChildren {
   EditProfileRoute: typeof EditProfileRoute
   FeedRoute: typeof FeedRoute
   NameRideRoute: typeof NameRideRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   SettingsRoute: typeof SettingsRoute
   ShareRoute: typeof ShareRoute
@@ -197,6 +210,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/name-ride': {
       id: '/name-ride'
       path: '/name-ride'
@@ -240,6 +260,7 @@ const rootRouteChildren: RootRouteChildren = {
   EditProfileRoute: EditProfileRoute,
   FeedRoute: FeedRoute,
   NameRideRoute: NameRideRoute,
+  PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   SettingsRoute: SettingsRoute,
   ShareRoute: ShareRoute,
