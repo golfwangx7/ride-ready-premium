@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as SummaryRouteImport } from './routes/summary'
+import { Route as ShareRouteImport } from './routes/share'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as FeedRouteImport } from './routes/feed'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,6 +24,11 @@ const TrackingRoute = TrackingRouteImport.update({
 const SummaryRoute = SummaryRouteImport.update({
   id: '/summary',
   path: '/summary',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShareRoute = ShareRouteImport.update({
+  id: '/share',
+  path: '/share',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/feed': typeof FeedRoute
   '/profile': typeof ProfileRoute
+  '/share': typeof ShareRoute
   '/summary': typeof SummaryRoute
   '/tracking': typeof TrackingRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/feed': typeof FeedRoute
   '/profile': typeof ProfileRoute
+  '/share': typeof ShareRoute
   '/summary': typeof SummaryRoute
   '/tracking': typeof TrackingRoute
 }
@@ -60,21 +68,30 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/feed': typeof FeedRoute
   '/profile': typeof ProfileRoute
+  '/share': typeof ShareRoute
   '/summary': typeof SummaryRoute
   '/tracking': typeof TrackingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/feed' | '/profile' | '/summary' | '/tracking'
+  fullPaths: '/' | '/feed' | '/profile' | '/share' | '/summary' | '/tracking'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/feed' | '/profile' | '/summary' | '/tracking'
-  id: '__root__' | '/' | '/feed' | '/profile' | '/summary' | '/tracking'
+  to: '/' | '/feed' | '/profile' | '/share' | '/summary' | '/tracking'
+  id:
+    | '__root__'
+    | '/'
+    | '/feed'
+    | '/profile'
+    | '/share'
+    | '/summary'
+    | '/tracking'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FeedRoute: typeof FeedRoute
   ProfileRoute: typeof ProfileRoute
+  ShareRoute: typeof ShareRoute
   SummaryRoute: typeof SummaryRoute
   TrackingRoute: typeof TrackingRoute
 }
@@ -93,6 +110,13 @@ declare module '@tanstack/react-router' {
       path: '/summary'
       fullPath: '/summary'
       preLoaderRoute: typeof SummaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/share': {
+      id: '/share'
+      path: '/share'
+      fullPath: '/share'
+      preLoaderRoute: typeof ShareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -123,6 +147,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FeedRoute: FeedRoute,
   ProfileRoute: ProfileRoute,
+  ShareRoute: ShareRoute,
   SummaryRoute: SummaryRoute,
   TrackingRoute: TrackingRoute,
 }
