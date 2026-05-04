@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Download, Share2, MapPin } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, Download, Share2, MapPin, Check, Loader2 } from "lucide-react";
 import mapSummary from "@/assets/map-summary.jpg";
 import { useMode } from "@/context/mode-context";
 
@@ -7,9 +8,59 @@ export const Route = createFileRoute("/share")({
   component: SharePage,
 });
 
+type Toast = { kind: "saved" | "shared"; id: number } | null;
+
 function SharePage() {
   const { mode } = useMode();
   const vehicle = mode === "moto" ? "Yamaha R1" : "BMW M4 Competition";
+  const [toast, setToast] = useState<Toast>(null);
+  const [busy, setBusy] = useState<"save" | "share" | null>(null);
+
+  const showToast = (kind: "saved" | "shared") => {
+    setToast({ kind, id: Date.now() });
+    setTimeout(() => setToast(null), 2200);
+  };
+
+  const handleSave = async () => {
+    if (busy) return;
+    setBusy("save");
+    try {
+      const res = await fetch(mapSummary);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "apex-sunday-ride.jpg";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast("saved");
+    } finally {
+      setTimeout(() => setBusy(null), 400);
+    }
+  };
+
+  const handleShare = async () => {
+    if (busy) return;
+    setBusy("share");
+    try {
+      const data = {
+        title: "Sunday Ride · Apex",
+        text: "84.2 km · 1h 42m · Avg 49 km/h — tracked with Apex",
+        url: typeof window !== "undefined" ? window.location.href : "",
+      };
+      const nav = typeof navigator !== "undefined" ? navigator : null;
+      if (nav?.share) {
+        await nav.share(data).catch(() => {});
+      } else if (nav?.clipboard) {
+        await nav.clipboard.writeText(`${data.text} ${data.url}`);
+      }
+      showToast("shared");
+    } finally {
+      setTimeout(() => setBusy(null), 400);
+    }
+  };
 
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
