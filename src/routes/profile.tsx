@@ -335,31 +335,17 @@ function VehicleCard({
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         onClick={handleClick}
-        className="group relative block touch-pan-y select-none overflow-hidden rounded-3xl border border-border backdrop-blur-md transition-[border-color,box-shadow,transform] hover:border-primary/40 hover:shadow-[var(--shadow-glow-sm)]"
+        className="group relative block touch-pan-y select-none overflow-hidden rounded-3xl border border-border backdrop-blur-md transition-[border-color,transform] hover:border-primary/30"
         style={{
-          background:
-            "radial-gradient(120% 80% at 50% 0%, oklch(0.82 0.16 200 / 0.10), transparent 60%), var(--gradient-surface)",
+          background: "var(--gradient-surface)",
           transform: `translateX(${offset}px)`,
           transition: dragging.current ? "none" : "transform 250ms cubic-bezier(0.22, 1, 0.36, 1)",
         }}
       >
-        {/* Subtle grid texture */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)",
-            backgroundSize: "26px 26px",
-            color: "oklch(0.82 0.16 200)",
-            maskImage: "radial-gradient(ellipse at 50% 30%, black 35%, transparent 75%)",
-          }}
-        />
-
         {/* Top: name + type/active */}
         <div className="relative flex items-start justify-between px-5 pt-5">
           <div className="min-w-0">
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-primary">
+            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
               <Icon className="h-3 w-3" />
               {vehicle.type === "car" ? "Car" : "Motorcycle"}
             </div>
@@ -369,25 +355,14 @@ function VehicleCard({
             <p className="mt-0.5 text-[11px] text-muted-foreground">{vehicle.sub}</p>
           </div>
           {active && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-primary/30 bg-primary/15 px-2 py-1 text-[9px] font-semibold uppercase tracking-wider text-primary">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-1 text-[9px] font-semibold uppercase tracking-wider text-primary">
               <Star className="h-2.5 w-2.5 fill-primary" /> Active
             </span>
           )}
         </div>
 
         {/* Center: hero vehicle image */}
-        <div className="relative mt-2 h-40 w-full overflow-hidden">
-          {/* Glow halo */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 h-44 w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-50 blur-3xl"
-            style={{ background: "var(--gradient-primary)" }}
-          />
-          {/* Floor reflection */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-x-10 bottom-3 h-3 rounded-[50%] bg-primary/40 blur-md"
-          />
+        <div className="relative mt-3 h-40 w-full overflow-hidden">
           <img
             src={vehicle.image}
             alt={vehicle.name}
@@ -395,14 +370,14 @@ function VehicleCard({
             height={512}
             loading="lazy"
             draggable={false}
-            className={`relative h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.06] ${
+            className={`relative h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.03] ${
               vehicle.custom
-                ? "object-contain p-3 drop-shadow-[0_18px_22px_oklch(0_0_0/0.55)]"
+                ? "object-contain px-6 drop-shadow-[0_10px_14px_oklch(0_0_0/0.45)]"
                 : "object-cover"
             }`}
           />
           {!vehicle.custom && (
-            <div className="absolute inset-0 bg-gradient-to-t from-card/85 via-card/10 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-card/80 via-card/10 to-transparent" />
           )}
         </div>
 
