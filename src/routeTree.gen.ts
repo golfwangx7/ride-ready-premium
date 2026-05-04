@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrackingRouteImport } from './routes/tracking'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SummaryRouteImport } from './routes/summary'
 import { Route as ShareRouteImport } from './routes/share'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -24,6 +25,11 @@ import { Route as VehicleVehicleIdRouteImport } from './routes/vehicle.$vehicleI
 const TrackingRoute = TrackingRouteImport.update({
   id: '/tracking',
   path: '/tracking',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SummaryRoute = SummaryRouteImport.update({
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/share': typeof ShareRoute
   '/summary': typeof SummaryRoute
+  '/terms': typeof TermsRoute
   '/tracking': typeof TrackingRoute
   '/vehicle/$vehicleId': typeof VehicleVehicleIdRoute
 }
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/share': typeof ShareRoute
   '/summary': typeof SummaryRoute
+  '/terms': typeof TermsRoute
   '/tracking': typeof TrackingRoute
   '/vehicle/$vehicleId': typeof VehicleVehicleIdRoute
 }
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/share': typeof ShareRoute
   '/summary': typeof SummaryRoute
+  '/terms': typeof TermsRoute
   '/tracking': typeof TrackingRoute
   '/vehicle/$vehicleId': typeof VehicleVehicleIdRoute
 }
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/share'
     | '/summary'
+    | '/terms'
     | '/tracking'
     | '/vehicle/$vehicleId'
   fileRoutesByTo: FileRoutesByTo
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/share'
     | '/summary'
+    | '/terms'
     | '/tracking'
     | '/vehicle/$vehicleId'
   id:
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/share'
     | '/summary'
+    | '/terms'
     | '/tracking'
     | '/vehicle/$vehicleId'
   fileRoutesById: FileRoutesById
@@ -169,6 +181,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   ShareRoute: typeof ShareRoute
   SummaryRoute: typeof SummaryRoute
+  TermsRoute: typeof TermsRoute
   TrackingRoute: typeof TrackingRoute
   VehicleVehicleIdRoute: typeof VehicleVehicleIdRoute
 }
@@ -180,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/tracking'
       fullPath: '/tracking'
       preLoaderRoute: typeof TrackingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/summary': {
@@ -265,6 +285,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   ShareRoute: ShareRoute,
   SummaryRoute: SummaryRoute,
+  TermsRoute: TermsRoute,
   TrackingRoute: TrackingRoute,
   VehicleVehicleIdRoute: VehicleVehicleIdRoute,
 }
