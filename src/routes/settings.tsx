@@ -116,7 +116,7 @@ function Settings() {
           <Row
             icon={<Crown className="h-4 w-4 text-primary" />}
             label={t("settings.manage_subscription")}
-            hint="Apex Pro"
+            hint="Rydr Premium"
             highlight
           />
         </Group>
