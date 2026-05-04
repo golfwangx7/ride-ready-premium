@@ -35,10 +35,13 @@ function Settings() {
   const { profile } = useProfile();
   const { socials, setSocials } = useSocials();
   const { t, lang, setLang } = useI18n();
+  const { isPremium, setPremium } = usePremium();
   const [editingSocials, setEditingSocials] = useState(false);
   const [units, setUnits] = useState<"km" | "mi">("km");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
+  const [devMode, setDevMode] = useState(false);
+  const [versionTaps, setVersionTaps] = useState(0);
 
   useEffect(() => {
     try {
