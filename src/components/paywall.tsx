@@ -113,7 +113,6 @@ export function Paywall() {
               price="$29.99"
               suffix="per year"
               equivalent="≈ $2.50 / month"
-              badge="Best Value"
               note="Save 40%"
               featured
             />
