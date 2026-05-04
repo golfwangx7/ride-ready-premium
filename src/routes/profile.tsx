@@ -137,6 +137,13 @@ function Profile() {
           <NavBtn to="/profile" icon={<User className="h-5 w-5" />} label="Profile" active />
         </div>
       </nav>
+
+      <SocialEditor
+        open={editing}
+        initial={socials}
+        onClose={() => setEditing(false)}
+        onSave={setSocials}
+      />
     </div>
   );
 }
