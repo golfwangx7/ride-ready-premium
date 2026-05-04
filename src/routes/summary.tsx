@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Share2, Bookmark, ArrowLeft, Gauge, Route as RouteIcon, Clock, Wind, Flag, Car, Bike, Sparkles, ChevronRight } from "lucide-react";
 import mapSummary from "@/assets/map-summary.jpg";
-import { useRide } from "@/context/ride-context";
+import { useRide, formatHoursMinutes, metersToKm, mpsToKmh } from "@/context/ride-context";
 import { useVehicles } from "@/context/vehicle-context";
 import { usePremium } from "@/context/premium-context";
 
@@ -10,11 +10,16 @@ export const Route = createFileRoute("/summary")({
 });
 
 function Summary() {
-  const { name } = useRide();
+  const { name, stats } = useRide();
   const { vehicles, activeId } = useVehicles();
   const { isPremium, openPaywall } = usePremium();
   const active = vehicles.find((v) => v.id === activeId) ?? vehicles[0];
   const [first, ...rest] = name.split(" ");
+  const hasRide = stats.duration > 0 || stats.distance > 0;
+  const distanceKm = hasRide ? metersToKm(stats.distance).toFixed(1) : "84.2";
+  const durationStr = hasRide ? formatHoursMinutes(stats.duration) : "1:42";
+  const avgKmh = hasRide ? Math.round(mpsToKmh(stats.avgSpeed)) : 49;
+  const maxKmh = hasRide ? Math.round(mpsToKmh(stats.maxSpeed)) : 142;
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
@@ -76,9 +81,9 @@ function Summary() {
 
         {/* Stats grid */}
         <section className="animate-fade-up mt-6 grid grid-cols-2 gap-3" style={{ animationDelay: "240ms" }}>
-          <StatCard icon={<RouteIcon className="h-4 w-4" />} label="Distance" value="84.2" unit="km" featured />
-          <StatCard icon={<Clock className="h-4 w-4" />} label="Duration" value="1:42" unit="h" />
-          <StatCard icon={<Wind className="h-4 w-4" />} label="Avg Speed" value="49" unit="km/h" />
+          <StatCard icon={<RouteIcon className="h-4 w-4" />} label="Distance" value={distanceKm} unit="km" featured />
+          <StatCard icon={<Clock className="h-4 w-4" />} label="Duration" value={durationStr} unit="h" />
+          <StatCard icon={<Wind className="h-4 w-4" />} label="Avg Speed" value={String(avgKmh)} unit="km/h" />
           <StatCard icon={<Flag className="h-4 w-4" />} label="Stops" value="3" unit="" />
         </section>
 
@@ -90,7 +95,7 @@ function Summary() {
               <span className="text-xs uppercase tracking-[0.2em]">Max speed</span>
             </div>
             <p className="font-display text-base font-medium tabular-nums">
-              142<span className="ml-1 text-[10px] uppercase tracking-wider text-muted-foreground">km/h</span>
+              {maxKmh}<span className="ml-1 text-[10px] uppercase tracking-wider text-muted-foreground">km/h</span>
             </p>
           </div>
         </section>
