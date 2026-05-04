@@ -9,6 +9,7 @@ import { AvatarPicker, useAvatar } from "@/components/avatar-picker";
 import { Camera } from "lucide-react";
 import { useVehicles, formatDistance, type Vehicle } from "@/context/vehicle-context";
 import { useProfile } from "@/context/profile-context";
+import { AddVehicleDialog } from "@/components/add-vehicle-dialog";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
@@ -23,6 +24,7 @@ function Profile() {
   const [pickingAvatar, setPickingAvatar] = useState(false);
   const { vehicles, activeId } = useVehicles();
   const { profile } = useProfile();
+  const [addingVehicle, setAddingVehicle] = useState(false);
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
@@ -108,7 +110,11 @@ function Profile() {
                 {vehicles.length} vehicles
               </p>
             </div>
-            <button className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/15">
+            <button
+              type="button"
+              onClick={() => setAddingVehicle(true)}
+              className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/15 active:scale-95"
+            >
               <Plus className="h-3.5 w-3.5" />
               Add
             </button>
@@ -122,7 +128,8 @@ function Profile() {
             {/* Add vehicle ghost card */}
             <button
               type="button"
-              className="animate-fade-up group flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-card/30 py-5 text-sm text-muted-foreground transition-all hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
+              onClick={() => setAddingVehicle(true)}
+              className="animate-fade-up group flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-card/30 py-5 text-sm text-muted-foreground transition-all hover:border-primary/50 hover:bg-primary/5 hover:text-primary active:scale-[0.99]"
               style={{ animationDelay: `${300 + vehicles.length * 80}ms` }}
             >
               <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" />
@@ -153,6 +160,8 @@ function Profile() {
         onClose={() => setPickingAvatar(false)}
         onSave={setAvatarSrc}
       />
+
+      <AddVehicleDialog open={addingVehicle} onClose={() => setAddingVehicle(false)} />
     </div>
   );
 }
