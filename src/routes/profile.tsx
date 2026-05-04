@@ -343,7 +343,10 @@ function VehicleCard({
         }}
       >
         <div className="flex items-stretch">
-          <div className="relative h-28 w-36 shrink-0 overflow-hidden">
+          <div
+            className="relative h-28 w-36 shrink-0 overflow-hidden"
+            style={vehicle.custom ? { background: "var(--gradient-surface)" } : undefined}
+          >
             <img
               src={vehicle.image}
               alt={vehicle.name}
@@ -351,7 +354,9 @@ function VehicleCard({
               height={512}
               loading="lazy"
               draggable={false}
-              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+              className={`h-full w-full transition-transform duration-700 group-hover:scale-110 ${
+                vehicle.custom ? "object-contain p-2" : "object-cover"
+              }`}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/80" />
           </div>
