@@ -83,7 +83,7 @@ function Subscription() {
           <PlanCard
             tone="premium"
             title="Rydr Premium"
-            badge="Best Experience"
+            
             tag={isPremium ? "Active" : undefined}
             features={[
               { icon: <BarChart3 className="h-3.5 w-3.5" />, label: "Advanced ride stats" },
