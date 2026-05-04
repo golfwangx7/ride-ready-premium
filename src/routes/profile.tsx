@@ -39,9 +39,14 @@ function Profile() {
           <Link
             to="/settings"
             aria-label="Settings"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card/60 backdrop-blur-md transition-colors hover:border-primary/40"
+            onClick={() => {
+              if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+                try { navigator.vibrate(10); } catch { /* ignore */ }
+              }
+            }}
+            className="group flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card/60 backdrop-blur-md transition-all duration-200 hover:border-primary/40 hover:bg-card/80 active:scale-90"
           >
-            <Settings className="h-4 w-4" />
+            <Settings className="h-4 w-4 transition-transform duration-300 ease-out group-hover:rotate-45 group-active:rotate-90" />
           </Link>
         </header>
 
