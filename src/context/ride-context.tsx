@@ -49,10 +49,15 @@ type Ctx = {
 const RideContext = createContext<Ctx | null>(null);
 
 // Tuning constants — chosen to balance accuracy and battery.
-// We sample the OS at high accuracy but only KEEP a point if it differs
-// meaningfully in time or distance. This avoids dense, noisy traces.
-const MIN_SAMPLE_INTERVAL_MS = 3000; // don't record more often than every 3s
-const MIN_SAMPLE_DISTANCE_M = 10; // ...unless the user moved at least 10m
+// We poll the OS at adaptive intervals (faster when moving, slower when
+// stationary) and only KEEP a fix if it differs meaningfully in time or
+// distance. This avoids dense, noisy traces and minimizes GPS wake-ups.
+const ACTIVE_POLL_MS = 5000; // poll every 5s while moving
+const IDLE_POLL_MS = 30000; // back off to every 30s while stationary
+const STATIONARY_SPEED_MPS = 0.7; // < ~2.5 km/h counts as stationary
+const STATIONARY_DISTANCE_M = 8; // ...or didn't move at least this far
+const MIN_SAMPLE_INTERVAL_MS = 3000; // never record points faster than this
+const MIN_SAMPLE_DISTANCE_M = 10; // unless the user moved at least 10m
 const MAX_ACCURACY_M = 50; // drop fixes worse than ~50m accuracy
 const TICK_MS = 1000; // duration ticker
 
