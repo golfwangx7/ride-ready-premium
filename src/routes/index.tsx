@@ -214,3 +214,72 @@ function NavBtn({
     </Link>
   );
 }
+
+function VehicleSelector({
+  open,
+  vehicles,
+  activeId,
+  onSelect,
+  onClose,
+  title,
+}: {
+  open: boolean;
+  vehicles: Vehicle[];
+  activeId: string;
+  onSelect: (id: string) => void;
+  onClose: () => void;
+  title: string;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className="animate-fade-up absolute inset-0 bg-background/80 backdrop-blur-md"
+      />
+      <div className="animate-fade-up relative z-10 w-full max-w-md rounded-t-3xl border border-border bg-card p-5 shadow-[var(--shadow-elegant)] sm:rounded-3xl">
+        <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border sm:hidden" />
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="font-display text-base font-semibold">{title}</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <ul className="max-h-[60vh] space-y-2 overflow-y-auto">
+          {vehicles.map((v) => {
+            const isActive = v.id === activeId;
+            const Icon = v.type === "car" ? Car : Bike;
+            return (
+              <li key={v.id}>
+                <button
+                  type="button"
+                  onClick={() => onSelect(v.id)}
+                  className={`flex w-full items-center gap-3 rounded-2xl border px-3 py-3 text-left transition-all active:scale-[0.99] ${
+                    isActive
+                      ? "border-primary/40 bg-primary/10"
+                      : "border-border bg-card/60 hover:border-primary/30 hover:bg-card"
+                  }`}
+                >
+                  <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${isActive ? "bg-primary/20 text-primary" : "bg-muted/40 text-muted-foreground"}`}>
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate text-sm font-medium">{v.name}</p>
+                    <p className="truncate text-[11px] text-muted-foreground">{v.sub}</p>
+                  </div>
+                  {isActive && <Check className="h-4 w-4 text-primary" />}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
+  );
+}
