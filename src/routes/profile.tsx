@@ -156,7 +156,13 @@ function Profile() {
             ) : (
               <>
                 {vehicles.map((v, i) => (
-                  <VehicleCard key={v.id} vehicle={v} delay={300 + i * 80} active={v.id === activeId} />
+                  <VehicleCard
+                    key={v.id}
+                    vehicle={v}
+                    delay={300 + i * 80}
+                    active={v.id === activeId}
+                    onRequestDelete={() => setConfirmDeleteId(v.id)}
+                  />
                 ))}
 
                 {/* Add vehicle ghost card */}
