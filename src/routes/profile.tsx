@@ -7,6 +7,8 @@ import motoYamaha from "@/assets/moto-yamaha.jpg";
 import { ModeToggle, modeStats } from "@/components/mode-toggle";
 import { useMode } from "@/context/mode-context";
 import { SocialLinks, SocialEditor, useSocials } from "@/components/socials";
+import { AvatarPicker, useAvatar } from "@/components/avatar-picker";
+import { Camera } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
@@ -36,6 +38,8 @@ function Profile() {
   const stats = modeStats(mode);
   const { socials, setSocials } = useSocials();
   const [editing, setEditing] = useState(false);
+  const { src: avatarSrc, setSrc: setAvatarSrc } = useAvatar(avatar);
+  const [pickingAvatar, setPickingAvatar] = useState(false);
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
@@ -60,20 +64,27 @@ function Profile() {
 
         {/* Profile */}
         <section className="animate-fade-up mt-8 flex flex-col items-center text-center" style={{ animationDelay: "80ms" }}>
-          <div className="relative">
+          <button
+            type="button"
+            onClick={() => setPickingAvatar(true)}
+            className="group relative outline-none"
+            aria-label="Change profile picture"
+          >
             <div
-              className="absolute inset-0 -m-1 rounded-full opacity-70 blur-md"
+              className="absolute inset-0 -m-1 rounded-full opacity-70 blur-md transition-opacity group-hover:opacity-100"
               style={{ background: "var(--gradient-primary)" }}
             />
             <img
-              src={avatar}
+              src={avatarSrc}
               alt="Alex Carter"
               width={512}
               height={512}
-              className="relative h-24 w-24 rounded-full border-2 border-background object-cover"
+              className="relative h-24 w-24 rounded-full border-2 border-background object-cover transition-transform group-hover:scale-[1.02]"
             />
-            <span className="absolute bottom-1 right-1 h-3.5 w-3.5 rounded-full border-2 border-background bg-primary shadow-[0_0_12px_oklch(0.82_0.16_200/0.8)]" />
-          </div>
+            <span className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-[0_0_12px_oklch(0.82_0.16_200/0.8)] transition-transform group-hover:scale-110">
+              <Camera className="h-3.5 w-3.5" />
+            </span>
+          </button>
           <h1 className="mt-5 font-display text-2xl font-medium tracking-tight">Alex Carter</h1>
           <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
             <MapPin className="h-3 w-3" />
@@ -147,6 +158,12 @@ function Profile() {
         initial={socials}
         onClose={() => setEditing(false)}
         onSave={setSocials}
+      />
+
+      <AvatarPicker
+        open={pickingAvatar}
+        onClose={() => setPickingAvatar(false)}
+        onSave={setAvatarSrc}
       />
     </div>
   );
