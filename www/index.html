@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"
+    />
+    <title>Rydr</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: #0b0b0c;
+        color: #fff;
+        font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .loader { opacity: 0.7; font-size: 14px; letter-spacing: 0.04em; }
+    </style>
+    <script>
+      // Capacitor's server.url config takes over and loads the hosted app.
+      // This file exists as a fallback so the WebView never sees a blank screen.
+      window.addEventListener("load", function () {
+        setTimeout(function () {
+          if (location.hostname === "localhost" || location.protocol === "capacitor:") {
+            location.replace("https://ride-luxe-canvas.lovable.app");
+          }
+        }, 1500);
+      });
+    </script>
+  </head>
+  <body>
+    <div class="loader">Loading Rydr…</div>
+  </body>
+</html>
