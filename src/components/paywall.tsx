@@ -5,7 +5,7 @@ import { usePremium } from "@/context/premium-context";
 type Plan = "monthly" | "yearly";
 
 export function Paywall() {
-  const { paywallOpen, closePaywall, setPremium } = usePremium();
+  const { paywallOpen, paywallReason, closePaywall, setPremium } = usePremium();
   const [plan, setPlan] = useState<Plan>("yearly");
 
   if (!paywallOpen) return null;
