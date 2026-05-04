@@ -25,6 +25,15 @@ type Ctx = {
 
 const I18nContext = createContext<Ctx | null>(null);
 
+/** Convert a missing translation key like "settings.contact_support" into a
+ *  clean fallback label like "Contact support" so raw keys never appear in UI. */
+function humanize(key: string): string {
+  const last = key.includes(".") ? key.slice(key.lastIndexOf(".") + 1) : key;
+  const spaced = last.replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
+  if (!spaced) return key;
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+}
+
 function detectInitial(): Lang {
   if (typeof window === "undefined") return "en";
   try {
@@ -54,12 +63,13 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const t = useCallback<TFn>((key, vars) => {
     const dict = LOCALE_MAP[lang] ?? BASE_DICT;
-    let str = (dict as Record<string, string>)[key as string]
-      ?? (BASE_DICT as Record<string, string>)[key as string]
-      ?? (key as string);
+    const k = key as string;
+    let str = (dict as Record<string, string>)[k]
+      ?? (BASE_DICT as Record<string, string>)[k]
+      ?? humanize(k);
     if (vars) {
-      for (const [k, v] of Object.entries(vars)) {
-        str = str.replace(new RegExp(`\\{${k}\\}`, "g"), String(v));
+      for (const [vk, v] of Object.entries(vars)) {
+        str = str.replace(new RegExp(`\\{${vk}\\}`, "g"), String(v));
       }
     }
     return str;
