@@ -1,12 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Share2, Bookmark, ArrowLeft, Gauge, Route as RouteIcon, Clock, Wind, Flag } from "lucide-react";
 import mapSummary from "@/assets/map-summary.jpg";
+import { useRide } from "@/context/ride-context";
 
 export const Route = createFileRoute("/summary")({
   component: Summary,
 });
 
 function Summary() {
+  const { name } = useRide();
+  const [first, ...rest] = name.split(" ");
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
@@ -33,8 +36,8 @@ function Summary() {
         {/* Title */}
         <section className="animate-fade-up mt-8" style={{ animationDelay: "80ms" }}>
           <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Your Ride</p>
-          <h1 className="mt-2 font-display text-4xl font-light leading-tight tracking-tight">
-            Sunday <span className="font-medium italic text-primary">Cruise</span>
+          <h1 key={name} className="animate-fade-up mt-2 font-display text-4xl font-light leading-tight tracking-tight">
+            {first} {rest.length > 0 && <span className="font-medium italic text-primary">{rest.join(" ")}</span>}
           </h1>
         </section>
 
@@ -99,7 +102,7 @@ function Summary() {
             <Bookmark className="h-5 w-5" />
           </button>
           <Link
-            to="/share"
+            to="/name-ride"
             className="group relative flex h-14 flex-1 items-center justify-center gap-2.5 rounded-full font-display text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.01] active:scale-[0.99]"
             style={{
               background: "var(--gradient-primary)",

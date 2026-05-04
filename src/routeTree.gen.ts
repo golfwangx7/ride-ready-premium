@@ -13,6 +13,7 @@ import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as SummaryRouteImport } from './routes/summary'
 import { Route as ShareRouteImport } from './routes/share'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as NameRideRouteImport } from './routes/name-ride'
 import { Route as FeedRouteImport } from './routes/feed'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -36,6 +37,11 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NameRideRoute = NameRideRouteImport.update({
+  id: '/name-ride',
+  path: '/name-ride',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FeedRoute = FeedRouteImport.update({
   id: '/feed',
   path: '/feed',
@@ -50,6 +56,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/feed': typeof FeedRoute
+  '/name-ride': typeof NameRideRoute
   '/profile': typeof ProfileRoute
   '/share': typeof ShareRoute
   '/summary': typeof SummaryRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/feed': typeof FeedRoute
+  '/name-ride': typeof NameRideRoute
   '/profile': typeof ProfileRoute
   '/share': typeof ShareRoute
   '/summary': typeof SummaryRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/feed': typeof FeedRoute
+  '/name-ride': typeof NameRideRoute
   '/profile': typeof ProfileRoute
   '/share': typeof ShareRoute
   '/summary': typeof SummaryRoute
@@ -74,13 +83,28 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/feed' | '/profile' | '/share' | '/summary' | '/tracking'
+  fullPaths:
+    | '/'
+    | '/feed'
+    | '/name-ride'
+    | '/profile'
+    | '/share'
+    | '/summary'
+    | '/tracking'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/feed' | '/profile' | '/share' | '/summary' | '/tracking'
+  to:
+    | '/'
+    | '/feed'
+    | '/name-ride'
+    | '/profile'
+    | '/share'
+    | '/summary'
+    | '/tracking'
   id:
     | '__root__'
     | '/'
     | '/feed'
+    | '/name-ride'
     | '/profile'
     | '/share'
     | '/summary'
@@ -90,6 +114,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FeedRoute: typeof FeedRoute
+  NameRideRoute: typeof NameRideRoute
   ProfileRoute: typeof ProfileRoute
   ShareRoute: typeof ShareRoute
   SummaryRoute: typeof SummaryRoute
@@ -126,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/name-ride': {
+      id: '/name-ride'
+      path: '/name-ride'
+      fullPath: '/name-ride'
+      preLoaderRoute: typeof NameRideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/feed': {
       id: '/feed'
       path: '/feed'
@@ -146,6 +178,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FeedRoute: FeedRoute,
+  NameRideRoute: NameRideRoute,
   ProfileRoute: ProfileRoute,
   ShareRoute: ShareRoute,
   SummaryRoute: SummaryRoute,
