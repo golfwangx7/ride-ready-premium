@@ -33,8 +33,9 @@ type Ctx = {
   activeId: string;
   setActive: (id: string) => void;
   resetStats: (id: string) => void;
-  addVehicle: (input: { name: string; type: VehicleType; color?: string }) => Vehicle;
+  addVehicle: (input: { name: string; type: VehicleType; color?: string; image?: string }) => Vehicle;
   removeVehicle: (id: string) => void;
+  updateVehicleImage: (id: string, image: string) => void;
   getById: (id: string) => Vehicle | undefined;
 };
 
@@ -110,7 +111,7 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
         type: input.type,
         rides: 0,
         distance: 0,
-        image: placeholder,
+        image: input.image || placeholder,
         color: input.color,
         custom: true,
       };
@@ -119,6 +120,14 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
       return next;
     });
     return created;
+  }, []);
+
+  const updateVehicleImage = useCallback((id: string, image: string) => {
+    setVehicles((prev) => {
+      const next = prev.map((v) => v.id === id ? { ...v, image, custom: true } : v);
+      persistAll(next);
+      return next;
+    });
   }, []);
 
   const removeVehicle = useCallback((id: string) => {
@@ -137,7 +146,7 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
   const getById = useCallback((id: string) => vehicles.find((v) => v.id === id), [vehicles]);
 
   return (
-    <VehicleContext.Provider value={{ vehicles, activeId, setActive, resetStats, addVehicle, removeVehicle, getById }}>
+    <VehicleContext.Provider value={{ vehicles, activeId, setActive, resetStats, addVehicle, removeVehicle, updateVehicleImage, getById }}>
       {children}
     </VehicleContext.Provider>
   );
