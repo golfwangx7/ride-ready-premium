@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Bike, Car, Play, Home, Newspaper, User, MapPin, TrendingUp, Clock } from "lucide-react";
 import roadBg from "@/assets/road-bg.jpg";
