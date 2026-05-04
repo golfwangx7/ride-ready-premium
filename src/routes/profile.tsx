@@ -26,6 +26,7 @@ function Profile() {
   const { vehicles, activeId } = useVehicles();
   const { profile } = useProfile();
   const [addingVehicle, setAddingVehicle] = useState(false);
+  const { t } = useI18n();
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
@@ -106,9 +107,9 @@ function Profile() {
         <section className="animate-fade-up mt-9" style={{ animationDelay: "240ms" }}>
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h2 className="font-display text-lg font-medium">Garage</h2>
+              <h2 className="font-display text-lg font-medium">{t("profile.garage")}</h2>
               <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                {vehicles.length} vehicles
+                {vehicles.length} {t("profile.vehicles")}
               </p>
             </div>
             <button
@@ -117,7 +118,7 @@ function Profile() {
               className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/15 active:scale-95"
             >
               <Plus className="h-3.5 w-3.5" />
-              Add
+              {t("profile.add")}
             </button>
           </div>
 
