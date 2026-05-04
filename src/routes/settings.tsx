@@ -242,7 +242,7 @@ function Settings() {
           onClick={enableDevMode}
           className="mt-10 block w-full text-center text-[10px] uppercase tracking-[0.25em] text-muted-foreground"
         >
-          Apex · v1.0.0{devMode ? " · dev" : ""}
+          Rydr • v1.0.0{devMode ? " (Dev)" : ""}
         </button>
       </main>
 
