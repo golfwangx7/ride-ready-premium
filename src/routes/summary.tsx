@@ -10,11 +10,16 @@ export const Route = createFileRoute("/summary")({
 });
 
 function Summary() {
-  const { name } = useRide();
+  const { name, stats } = useRide();
   const { vehicles, activeId } = useVehicles();
   const { isPremium, openPaywall } = usePremium();
   const active = vehicles.find((v) => v.id === activeId) ?? vehicles[0];
   const [first, ...rest] = name.split(" ");
+  const hasRide = stats.duration > 0 || stats.distance > 0;
+  const distanceKm = hasRide ? metersToKm(stats.distance).toFixed(1) : "84.2";
+  const durationStr = hasRide ? formatHoursMinutes(stats.duration) : "1:42";
+  const avgKmh = hasRide ? Math.round(mpsToKmh(stats.avgSpeed)) : 49;
+  const maxKmh = hasRide ? Math.round(mpsToKmh(stats.maxSpeed)) : 142;
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
