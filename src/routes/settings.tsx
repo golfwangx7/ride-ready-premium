@@ -195,11 +195,45 @@ function Settings() {
   );
 }
 
+const APP_VERSION = "1.0.0";
+
+function getDeviceInfo() {
+  if (typeof navigator === "undefined") {
+    return { platform: "unknown", language: "unknown", userAgent: "unknown", screen: "unknown" };
+  }
+  const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
+  const platform = nav.userAgentData?.platform || nav.platform || "unknown";
+  const screen =
+    typeof window !== "undefined" && window.screen
+      ? `${window.screen.width}x${window.screen.height}`
+      : "unknown";
+  return {
+    platform,
+    language: navigator.language || "unknown",
+    userAgent: navigator.userAgent || "unknown",
+    screen,
+  };
+}
+
 function SupportSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [copied, setCopied] = useState(false);
   const email = "rydr.app@outlook.com";
   const subject = "Rydr Support Request";
-  const body = "Hi, I need help with...";
+
+  const info = getDeviceInfo();
+  const body = [
+    "Hi, I need help with...",
+    "",
+    "",
+    "— — — — — — — — — — — —",
+    "Diagnostics (please keep)",
+    `App version: ${APP_VERSION}`,
+    `Platform: ${info.platform}`,
+    `Language: ${info.language}`,
+    `Screen: ${info.screen}`,
+    `User agent: ${info.userAgent}`,
+  ].join("\n");
+
   const mailto = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
   if (!open) return null;
