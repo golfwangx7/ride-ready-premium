@@ -29,13 +29,13 @@ function Subscription() {
   const { isPremium, openPaywall } = usePremium();
 
   return (
-    <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
+    <div className="dark relative min-h-screen overflow-y-auto overflow-x-hidden bg-background text-foreground">
       <div
         className="pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full opacity-20 blur-3xl"
         style={{ background: "var(--gradient-primary)" }}
       />
 
-      <main className="relative mx-auto flex min-h-screen w-full max-w-md flex-col px-6 pb-24 pt-12">
+      <main className="relative mx-auto flex w-full max-w-md flex-col px-6 pb-16 pt-10">
         <header className="animate-fade-up flex items-center justify-between">
           <button
             type="button"
