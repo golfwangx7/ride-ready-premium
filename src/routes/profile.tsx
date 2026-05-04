@@ -75,6 +75,7 @@ function Profile() {
             <MapPin className="h-3 w-3" />
             San Francisco · @alex.rides
           </p>
+          <SocialLinks socials={socials} onEdit={() => setEditing(true)} />
         </section>
 
         {/* Mode toggle */}
