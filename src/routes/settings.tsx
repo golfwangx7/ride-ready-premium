@@ -22,6 +22,7 @@ import {
 import { useSocials, SocialEditor } from "@/components/socials";
 import { useProfile } from "@/context/profile-context";
 import { useI18n, LANG_OPTIONS, type Lang } from "@/context/i18n-context";
+import { usePremium } from "@/context/premium-context";
 
 export const Route = createFileRoute("/settings")({
   component: Settings,
