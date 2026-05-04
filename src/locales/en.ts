@@ -15,6 +15,9 @@ const en = {
   "stat.distance": "Distance",
   "stat.duration": "Duration",
   "stat.top": "Top",
+  "home.active_vehicle": "Active vehicle",
+  "home.change": "Change",
+  "home.select_vehicle": "Select vehicle",
   // profile
   "profile.garage": "Garage",
   "profile.vehicles": "vehicles",

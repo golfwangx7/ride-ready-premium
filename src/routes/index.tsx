@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Play, Home, Newspaper, User, MapPin, TrendingUp, Clock } from "lucide-react";
+import { useState } from "react";
+import { Play, Home, Newspaper, User, MapPin, TrendingUp, Clock, Car, Bike, Check, ChevronDown, X } from "lucide-react";
 import roadBg from "@/assets/road-bg.jpg";
 import mapMini from "@/assets/map-mini.jpg";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useMode } from "@/context/mode-context";
 import { useI18n } from "@/context/i18n-context";
+import { useVehicles, type Vehicle } from "@/context/vehicle-context";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -13,6 +15,9 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { mode } = useMode();
   const { t } = useI18n();
+  const { vehicles, activeId, setActive } = useVehicles();
+  const active = vehicles.find((v) => v.id === activeId) ?? vehicles[0];
+  const [picking, setPicking] = useState(false);
   const machineCopy = mode === "moto" ? "Helmet on. Throttle ready." : "Engine warm. Cabin set.";
   const lastRoute = mode === "moto" ? "Pacific Coast Hwy" : "Skyline Boulevard";
   const lastDist = mode === "moto" ? "84.2 km" : "126.4 km";
@@ -82,6 +87,24 @@ function Index() {
           <p className="mt-5 text-xs uppercase tracking-[0.25em] text-muted-foreground">
             {t("home.tap_to_begin")}
           </p>
+
+          {/* Active vehicle pill */}
+          {active && (
+            <div className="mt-5 flex items-center gap-2 rounded-full border border-border bg-card/60 px-2 py-1.5 backdrop-blur-md">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary">
+                {active.type === "car" ? <Car className="h-3.5 w-3.5" /> : <Bike className="h-3.5 w-3.5" />}
+              </span>
+              <span className="text-sm font-medium">{active.name}</span>
+              <button
+                type="button"
+                onClick={() => setPicking(true)}
+                className="ml-1 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary transition-all hover:bg-primary/20 active:scale-95"
+              >
+                {t("home.change")}
+                <ChevronDown className="h-3 w-3" />
+              </button>
+            </div>
+          )}
         </section>
 
         {/* Last ride card */}
@@ -126,6 +149,15 @@ function Index() {
           <NavBtn to="/profile" icon={<User className="h-5 w-5" />} label={t("nav.profile")} />
         </div>
       </nav>
+
+      <VehicleSelector
+        open={picking}
+        vehicles={vehicles}
+        activeId={activeId}
+        onSelect={(id) => { setActive(id); setPicking(false); }}
+        onClose={() => setPicking(false)}
+        title={t("home.select_vehicle")}
+      />
     </div>
   );
 }
@@ -180,5 +212,74 @@ function NavBtn({
       {icon}
       {active && <span>{label}</span>}
     </Link>
+  );
+}
+
+function VehicleSelector({
+  open,
+  vehicles,
+  activeId,
+  onSelect,
+  onClose,
+  title,
+}: {
+  open: boolean;
+  vehicles: Vehicle[];
+  activeId: string;
+  onSelect: (id: string) => void;
+  onClose: () => void;
+  title: string;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className="animate-fade-up absolute inset-0 bg-background/80 backdrop-blur-md"
+      />
+      <div className="animate-fade-up relative z-10 w-full max-w-md rounded-t-3xl border border-border bg-card p-5 shadow-[var(--shadow-elegant)] sm:rounded-3xl">
+        <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border sm:hidden" />
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="font-display text-base font-semibold">{title}</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <ul className="max-h-[60vh] space-y-2 overflow-y-auto">
+          {vehicles.map((v) => {
+            const isActive = v.id === activeId;
+            const Icon = v.type === "car" ? Car : Bike;
+            return (
+              <li key={v.id}>
+                <button
+                  type="button"
+                  onClick={() => onSelect(v.id)}
+                  className={`flex w-full items-center gap-3 rounded-2xl border px-3 py-3 text-left transition-all active:scale-[0.99] ${
+                    isActive
+                      ? "border-primary/40 bg-primary/10"
+                      : "border-border bg-card/60 hover:border-primary/30 hover:bg-card"
+                  }`}
+                >
+                  <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${isActive ? "bg-primary/20 text-primary" : "bg-muted/40 text-muted-foreground"}`}>
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate text-sm font-medium">{v.name}</p>
+                    <p className="truncate text-[11px] text-muted-foreground">{v.sub}</p>
+                  </div>
+                  {isActive && <Check className="h-4 w-4 text-primary" />}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
   );
 }
