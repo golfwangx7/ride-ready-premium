@@ -30,6 +30,15 @@ function Profile() {
   const { profile } = useProfile();
   const [addingVehicle, setAddingVehicle] = useState(false);
   const { t } = useI18n();
+  const { isPremium, openPaywall } = usePremium();
+  const FREE_VEHICLE_LIMIT = 1;
+  const tryAddVehicle = () => {
+    if (!isPremium && vehicles.length >= FREE_VEHICLE_LIMIT) {
+      openPaywall({ reason: "Add unlimited vehicles with Premium" });
+      return;
+    }
+    setAddingVehicle(true);
+  };
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
