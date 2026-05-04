@@ -35,7 +35,13 @@ function Subscription() {
         style={{ background: "var(--gradient-primary)" }}
       />
 
-      <main className="relative mx-auto flex w-full max-w-md flex-col px-6 pb-16 pt-10">
+      <main
+        className="relative mx-auto flex w-full max-w-md flex-col px-6"
+        style={{
+          paddingTop: "calc(env(safe-area-inset-top, 0px) + 2.5rem)",
+          paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 4rem)",
+        }}
+      >
         <header className="animate-fade-up flex items-center justify-between">
           <button
             type="button"
