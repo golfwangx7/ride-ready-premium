@@ -23,7 +23,9 @@ function Profile() {
   const [editing, setEditing] = useState(false);
   const { src: avatarSrc, setSrc: setAvatarSrc } = useAvatar(avatar);
   const [pickingAvatar, setPickingAvatar] = useState(false);
-  const { vehicles, activeId } = useVehicles();
+  const { vehicles, activeId, removeVehicle } = useVehicles();
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const pendingDelete = vehicles.find((v) => v.id === confirmDeleteId);
   const { profile } = useProfile();
   const [addingVehicle, setAddingVehicle] = useState(false);
   const { t } = useI18n();
