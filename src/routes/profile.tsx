@@ -13,25 +13,6 @@ export const Route = createFileRoute("/profile")({
   component: Profile,
 });
 
-const vehicles = [
-  {
-    name: "BMW M4",
-    sub: "Competition · 2023",
-    type: "car" as const,
-    rides: 42,
-    distance: "3,210 km",
-    image: carBmw,
-  },
-  {
-    name: "Yamaha R1",
-    sub: "Race Blu · 2022",
-    type: "moto" as const,
-    rides: 86,
-    distance: "5,684 km",
-    image: motoYamaha,
-  },
-];
-
 function Profile() {
   const { mode } = useMode();
   const stats = modeStats(mode);
@@ -39,6 +20,7 @@ function Profile() {
   const [editing, setEditing] = useState(false);
   const { src: avatarSrc, setSrc: setAvatarSrc } = useAvatar(avatar);
   const [pickingAvatar, setPickingAvatar] = useState(false);
+  const { vehicles, activeId } = useVehicles();
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
