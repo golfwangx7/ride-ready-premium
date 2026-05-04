@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Download, Share2, MapPin } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, Download, Share2, MapPin, Check, Loader2 } from "lucide-react";
 import mapSummary from "@/assets/map-summary.jpg";
 import { useMode } from "@/context/mode-context";
 
@@ -7,9 +8,59 @@ export const Route = createFileRoute("/share")({
   component: SharePage,
 });
 
+type Toast = { kind: "saved" | "shared"; id: number } | null;
+
 function SharePage() {
   const { mode } = useMode();
   const vehicle = mode === "moto" ? "Yamaha R1" : "BMW M4 Competition";
+  const [toast, setToast] = useState<Toast>(null);
+  const [busy, setBusy] = useState<"save" | "share" | null>(null);
+
+  const showToast = (kind: "saved" | "shared") => {
+    setToast({ kind, id: Date.now() });
+    setTimeout(() => setToast(null), 2200);
+  };
+
+  const handleSave = async () => {
+    if (busy) return;
+    setBusy("save");
+    try {
+      const res = await fetch(mapSummary);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "apex-sunday-ride.jpg";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast("saved");
+    } finally {
+      setTimeout(() => setBusy(null), 400);
+    }
+  };
+
+  const handleShare = async () => {
+    if (busy) return;
+    setBusy("share");
+    try {
+      const data = {
+        title: "Sunday Ride · Apex",
+        text: "84.2 km · 1h 42m · Avg 49 km/h — tracked with Apex",
+        url: typeof window !== "undefined" ? window.location.href : "",
+      };
+      const nav = typeof navigator !== "undefined" ? navigator : null;
+      if (nav?.share) {
+        await nav.share(data).catch(() => {});
+      } else if (nav?.clipboard) {
+        await nav.clipboard.writeText(`${data.text} ${data.url}`);
+      }
+      showToast("shared");
+    } finally {
+      setTimeout(() => setBusy(null), 400);
+    }
+  };
 
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
@@ -132,27 +183,59 @@ function SharePage() {
         </div>
       </main>
 
+      {/* Toast */}
+      {toast && (
+        <div
+          key={toast.id}
+          className="animate-fade-up pointer-events-none fixed bottom-28 left-1/2 z-30 -translate-x-1/2"
+        >
+          <div className="flex items-center gap-2 rounded-full border border-primary/30 bg-card/90 px-4 py-2.5 backdrop-blur-2xl shadow-[var(--shadow-glow-sm)]">
+            <span
+              className="flex h-5 w-5 items-center justify-center rounded-full"
+              style={{ background: "var(--gradient-primary)" }}
+            >
+              <Check className="h-3 w-3 text-primary-foreground" strokeWidth={3} />
+            </span>
+            <span className="text-xs font-medium">
+              {toast.kind === "saved" ? "Image saved" : "Ready to share"}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Action bar */}
       <footer className="fixed inset-x-0 bottom-0 z-20 px-6 pb-6 pt-10 bg-gradient-to-t from-background via-background/90 to-transparent">
         <div className="mx-auto flex max-w-md items-center gap-3">
           <button
             type="button"
-            aria-label="Download"
-            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-border bg-card/70 backdrop-blur-2xl transition-all hover:scale-105 hover:border-primary/40 active:scale-95"
+            onClick={handleSave}
+            disabled={busy !== null}
+            className="group flex h-14 flex-1 items-center justify-center gap-2.5 rounded-full border border-border bg-card/70 font-display text-sm font-medium backdrop-blur-2xl transition-all hover:scale-[1.01] hover:border-primary/40 active:scale-[0.99] disabled:opacity-60"
           >
-            <Download className="h-5 w-5" />
+            {busy === "save" ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+            Save Image
           </button>
           <button
             type="button"
-            className="relative flex h-14 flex-1 items-center justify-center gap-2.5 rounded-full font-display text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.01] active:scale-[0.99]"
+            onClick={handleShare}
+            disabled={busy !== null}
+            className="relative flex h-14 flex-1 items-center justify-center gap-2.5 rounded-full font-display text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
             style={{
               background: "var(--gradient-primary)",
               boxShadow: "var(--shadow-glow)",
             }}
           >
             <span className="absolute inset-0 rounded-full border border-white/20" />
-            <Share2 className="h-4 w-4" />
-            Share to Story
+            {busy === "share" ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Share2 className="h-4 w-4" />
+            )}
+            Share
           </button>
         </div>
       </footer>
