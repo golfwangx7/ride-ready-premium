@@ -9,14 +9,14 @@ export const Route = createFileRoute("/tracking")({
 });
 
 function Tracking() {
-  const { status, stats, start, pause, resume, stop } = useRide();
+  const { status, autoPaused, stats, start, pause, resume, stop } = useRide();
 
   // Auto-start tracking when entering the screen if not already running.
   useEffect(() => {
     if (status === "idle") start();
   }, [status, start]);
 
-  const running = status === "recording";
+  const running = status === "recording" && !autoPaused;
   const speed = Math.round(mpsToKmh(stats.currentSpeed));
 
   return (
