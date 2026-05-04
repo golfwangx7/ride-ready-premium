@@ -37,6 +37,8 @@ type Ctx = {
   name: string;
   setName: (n: string) => void;
   status: Status;
+  /** True when ride is paused automatically due to no movement. */
+  autoPaused: boolean;
   points: RoutePoint[];
   stats: RideStats;
   start: () => void;
