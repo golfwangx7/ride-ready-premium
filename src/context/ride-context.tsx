@@ -37,6 +37,8 @@ type Ctx = {
   name: string;
   setName: (n: string) => void;
   status: Status;
+  /** True when ride is paused automatically due to no movement. */
+  autoPaused: boolean;
   points: RoutePoint[];
   stats: RideStats;
   start: () => void;
@@ -60,6 +62,9 @@ const MIN_SAMPLE_INTERVAL_MS = 3000; // never record points faster than this
 const MIN_SAMPLE_DISTANCE_M = 10; // unless the user moved at least 10m
 const MAX_ACCURACY_M = 50; // drop fixes worse than ~50m accuracy
 const TICK_MS = 1000; // duration ticker
+const AUTO_PAUSE_AFTER_MS = 15000; // stationary for 15s → auto-pause
+const AUTO_RESUME_SPEED_MPS = 1.4; // ~5 km/h sustained → auto-resume
+const AUTO_RESUME_DISTANCE_M = 15; // ...or moved 15m from pause spot
 
 function haversine(a: RoutePoint, b: RoutePoint): number {
   const R = 6371000;
@@ -82,6 +87,10 @@ export function RideProvider({ children }: { children: ReactNode }) {
   const [distance, setDistance] = useState(0);
   const [currentSpeed, setCurrentSpeed] = useState(0);
   const [maxSpeed, setMaxSpeed] = useState(0);
+  const [autoPaused, setAutoPaused] = useState(false);
+  const stationarySinceRef = useRef<number | null>(null);
+  const autoPausedRef = useRef(false);
+  const pauseAnchorRef = useRef<RoutePoint | null>(null);
 
   const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -114,31 +123,71 @@ export function RideProvider({ children }: { children: ReactNode }) {
 
     if (typeof speed === "number" && speed >= 0) {
       setCurrentSpeed(speed);
-      setMaxSpeed((m) => (speed > m ? speed : m));
+      // Don't grow maxSpeed while auto-paused — that's a parked GPS jitter.
+      if (!autoPausedRef.current) {
+        setMaxSpeed((m) => (speed > m ? speed : m));
+      }
     }
 
     const last = lastKeptRef.current;
     let movedDistance = 0;
+    if (last) movedDistance = haversine(last, point);
+
+    const isStationary =
+      (typeof speed === "number" ? speed < STATIONARY_SPEED_MPS : false) &&
+      movedDistance < STATIONARY_DISTANCE_M;
+
+    // ---- Auto-pause / auto-resume ----
+    if (!autoPausedRef.current) {
+      if (isStationary) {
+        if (stationarySinceRef.current == null) {
+          stationarySinceRef.current = now;
+        } else if (now - stationarySinceRef.current >= AUTO_PAUSE_AFTER_MS) {
+          autoPausedRef.current = true;
+          setAutoPaused(true);
+          pauseAnchorRef.current = point;
+          stopTick(); // freeze duration counter while parked
+        }
+      } else {
+        stationarySinceRef.current = null;
+      }
+    } else {
+      // Currently auto-paused: look for sustained movement to resume.
+      const anchor = pauseAnchorRef.current;
+      const movedFromAnchor = anchor ? haversine(anchor, point) : 0;
+      const movingFast = typeof speed === "number" && speed >= AUTO_RESUME_SPEED_MPS;
+      if (movingFast || movedFromAnchor >= AUTO_RESUME_DISTANCE_M) {
+        autoPausedRef.current = false;
+        setAutoPaused(false);
+        stationarySinceRef.current = null;
+        pauseAnchorRef.current = null;
+        // Break continuity so the parked gap doesn't count as travel.
+        lastKeptRef.current = point;
+        startTickRef.current();
+        // Skip recording this transition fix as a distance delta.
+        stationaryRef.current = false;
+        setPoints((p) => [...p, point]);
+        return;
+      }
+      // Still parked — don't accumulate distance or write points.
+      stationaryRef.current = true;
+      return;
+    }
+
+    stationaryRef.current = isStationary;
+
     if (last) {
       const dt = now - last.t;
-      movedDistance = haversine(last, point);
       // Throttle: keep point only if enough time AND/OR enough distance passed.
       if (dt < MIN_SAMPLE_INTERVAL_MS && movedDistance < MIN_SAMPLE_DISTANCE_M) {
-        stationaryRef.current =
-          (typeof speed === "number" ? speed < STATIONARY_SPEED_MPS : true) &&
-          movedDistance < STATIONARY_DISTANCE_M;
         return;
       }
       setDistance((d) => d + movedDistance);
     }
 
-    stationaryRef.current =
-      (typeof speed === "number" ? speed < STATIONARY_SPEED_MPS : false) &&
-      movedDistance < STATIONARY_DISTANCE_M;
-
     lastKeptRef.current = point;
     setPoints((p) => [...p, point]);
-  }, []);
+  }, [stopTick]);
 
   // Adaptive polling: faster while moving, slower while stationary.
   // Using one-shot getCurrentPosition + setTimeout lets the OS power down the
@@ -187,10 +236,20 @@ export function RideProvider({ children }: { children: ReactNode }) {
     tickRef.current = setInterval(() => setDuration((s) => s + 1), TICK_MS);
   }, []);
 
+  // Stable ref so handlePosition (created earlier) can call latest startTick.
+  const startTickRef = useRef(startTick);
+  useEffect(() => {
+    startTickRef.current = startTick;
+  }, [startTick]);
+
   const reset = useCallback(() => {
     stopWatch();
     stopTick();
     lastKeptRef.current = null;
+    stationarySinceRef.current = null;
+    pauseAnchorRef.current = null;
+    autoPausedRef.current = false;
+    setAutoPaused(false);
     setPoints([]);
     setDuration(0);
     setDistance(0);
@@ -210,12 +269,17 @@ export function RideProvider({ children }: { children: ReactNode }) {
     setStatus("paused");
     stopWatch();
     stopTick();
-    // Break continuity so a long pause doesn't get counted as a single segment.
     lastKeptRef.current = null;
+    stationarySinceRef.current = null;
+    autoPausedRef.current = false;
+    setAutoPaused(false);
   }, [stopWatch, stopTick]);
 
   const resume = useCallback(() => {
     setStatus("recording");
+    autoPausedRef.current = false;
+    setAutoPaused(false);
+    stationarySinceRef.current = null;
     startWatch();
     startTick();
   }, [startWatch, startTick]);
@@ -247,7 +311,7 @@ export function RideProvider({ children }: { children: ReactNode }) {
 
   return (
     <RideContext.Provider
-      value={{ name, setName, status, points, stats, start, pause, resume, stop, reset }}
+      value={{ name, setName, status, autoPaused, points, stats, start, pause, resume, stop, reset }}
     >
       {children}
     </RideContext.Provider>
