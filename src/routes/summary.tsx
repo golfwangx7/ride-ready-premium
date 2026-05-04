@@ -98,8 +98,8 @@ function Summary() {
           >
             <Bookmark className="h-5 w-5" />
           </button>
-          <button
-            type="button"
+          <Link
+            to="/share"
             className="group relative flex h-14 flex-1 items-center justify-center gap-2.5 rounded-full font-display text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.01] active:scale-[0.99]"
             style={{
               background: "var(--gradient-primary)",
@@ -109,7 +109,7 @@ function Summary() {
             <span className="absolute inset-0 rounded-full border border-white/20" />
             <Share2 className="h-4 w-4" />
             Share Ride
-          </button>
+          </Link>
         </div>
       </footer>
     </div>
