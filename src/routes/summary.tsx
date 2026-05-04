@@ -99,7 +99,7 @@ function Summary() {
             <Bookmark className="h-5 w-5" />
           </button>
           <Link
-            to="/share"
+            to="/name-ride"
             className="group relative flex h-14 flex-1 items-center justify-center gap-2.5 rounded-full font-display text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.01] active:scale-[0.99]"
             style={{
               background: "var(--gradient-primary)",
