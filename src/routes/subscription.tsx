@@ -85,8 +85,6 @@ function Subscription() {
             title="Rydr Premium"
             badge="Best Experience"
             tag={isPremium ? "Active" : undefined}
-            cta={isPremium ? undefined : "See pricing"}
-            onClick={isPremium ? undefined : openPaywall}
             features={[
               { icon: <BarChart3 className="h-3.5 w-3.5" />, label: "Advanced ride stats" },
               { icon: <Share2 className="h-3.5 w-3.5" />, label: "Custom share styles" },
@@ -99,12 +97,64 @@ function Subscription() {
         </div>
 
         {!isPremium && (
-          <p
-            className="animate-fade-up mt-6 text-center text-[11px] text-muted-foreground"
-            style={{ animationDelay: "260ms" }}
-          >
-            Cancel anytime · No commitment
-          </p>
+          <>
+            {/* Pricing */}
+            <section
+              className="animate-fade-up mt-8"
+              style={{ animationDelay: "260ms" }}
+            >
+              <p className="mb-3 text-center text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+                Premium pricing
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {/* Yearly — highlighted */}
+                <div
+                  className="relative overflow-hidden rounded-2xl border border-primary/50 p-4"
+                  style={{ background: "color-mix(in oklab, var(--primary) 8%, transparent)" }}
+                >
+                  <span
+                    className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full px-2.5 py-1 text-[9px] font-semibold uppercase tracking-wider text-primary-foreground"
+                    style={{ background: "var(--gradient-primary)" }}
+                  >
+                    Best Value
+                  </span>
+                  <p className="mt-1 font-display text-sm font-medium">Yearly</p>
+                  <p className="mt-1 font-display text-2xl font-light tabular-nums">$29.99</p>
+                  <p className="text-[11px] text-muted-foreground">per year</p>
+                  <p className="mt-2 text-[11px] font-medium text-primary">Save 40%</p>
+                </div>
+
+                {/* Monthly */}
+                <div className="relative rounded-2xl border border-border bg-background/40 p-4">
+                  <p className="font-display text-sm font-medium">Monthly</p>
+                  <p className="mt-1 font-display text-2xl font-light tabular-nums">$4.99</p>
+                  <p className="text-[11px] text-muted-foreground">per month</p>
+                </div>
+              </div>
+            </section>
+
+            {/* CTA */}
+            <button
+              type="button"
+              onClick={() => openPaywall()}
+              className="animate-fade-up group mt-6 flex w-full items-center justify-center gap-2 rounded-full py-3.5 font-display text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.01] active:scale-[0.99]"
+              style={{
+                background: "var(--gradient-primary)",
+                boxShadow: "var(--shadow-glow-sm)",
+                animationDelay: "320ms",
+              }}
+            >
+              <Sparkles className="h-4 w-4 transition-transform group-hover:rotate-12" />
+              Start Premium
+            </button>
+
+            <p
+              className="animate-fade-up mt-4 text-center text-[11px] text-muted-foreground"
+              style={{ animationDelay: "380ms" }}
+            >
+              Cancel anytime · No commitment
+            </p>
+          </>
         )}
       </main>
     </div>
