@@ -282,6 +282,9 @@ function SupportSheet({ open, onClose }: { open: boolean; onClose: () => void })
         <div className="mt-5 rounded-2xl border border-border bg-background/40 p-4">
           <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Email</p>
           <p className="mt-1 break-all font-mono text-sm text-foreground">{email}</p>
+          <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+            App version & device info are auto-attached to help us diagnose faster.
+          </p>
         </div>
 
         <div className="mt-5 space-y-3">
