@@ -71,7 +71,7 @@ function Tracking() {
               <span className={`relative inline-flex h-2 w-2 rounded-full ${running ? "bg-primary" : "bg-muted-foreground"}`} />
             </span>
             <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              {running ? "Recording" : "Paused"}
+              {running ? "Recording" : autoPaused ? "Auto-paused" : "Paused"}
             </span>
           </div>
         </div>
