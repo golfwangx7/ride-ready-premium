@@ -1,17 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { Bike, Car, Play, Home, Newspaper, User, MapPin, TrendingUp, Clock } from "lucide-react";
+import { Play, Home, Newspaper, User, MapPin, TrendingUp, Clock } from "lucide-react";
 import roadBg from "@/assets/road-bg.jpg";
 import mapMini from "@/assets/map-mini.jpg";
+import { ModeToggle } from "@/components/mode-toggle";
+import { useMode } from "@/context/mode-context";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
-type Mode = "moto" | "car";
-
 function Index() {
-  const [mode, setMode] = useState<Mode>("moto");
+  const { mode } = useMode();
+  const machineCopy = mode === "moto" ? "Helmet on. Throttle ready." : "Engine warm. Cabin set.";
+  const lastRoute = mode === "moto" ? "Pacific Coast Hwy" : "Skyline Boulevard";
+  const lastDist = mode === "moto" ? "84.2 km" : "126.4 km";
+  const lastTop = mode === "moto" ? "142 km/h" : "168 km/h";
 
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
@@ -50,31 +53,14 @@ function Index() {
             <br />
             <span className="font-medium italic text-primary">next ride?</span>
           </h1>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Pick your machine. The road is waiting.
+          <p key={mode} className="animate-fade-up mt-3 text-sm text-muted-foreground">
+            {machineCopy} The road is waiting.
           </p>
         </section>
 
         {/* Toggle */}
         <section className="animate-fade-up mt-8" style={{ animationDelay: "200ms" }}>
-          <div className="relative grid grid-cols-2 rounded-full border border-border bg-card/50 p-1.5 backdrop-blur-xl">
-            <span
-              className="absolute inset-y-1.5 w-[calc(50%-0.375rem)] rounded-full transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
-              style={{
-                left: mode === "moto" ? "0.375rem" : "calc(50% + 0rem)",
-                background: "var(--gradient-primary)",
-                boxShadow: "var(--shadow-glow-sm)",
-              }}
-            />
-            <ToggleBtn active={mode === "moto"} onClick={() => setMode("moto")}>
-              <Bike className="h-4 w-4" />
-              Motorcycle
-            </ToggleBtn>
-            <ToggleBtn active={mode === "car"} onClick={() => setMode("car")}>
-              <Car className="h-4 w-4" />
-              Car
-            </ToggleBtn>
-          </div>
+          <ModeToggle />
         </section>
 
         {/* Start button */}
