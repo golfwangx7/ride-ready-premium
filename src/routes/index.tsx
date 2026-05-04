@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Bike, Car, Play, Home, Newspaper, User, MapPin, TrendingUp, Clock } from "lucide-react";
 import roadBg from "@/assets/road-bg.jpg";
@@ -79,8 +79,8 @@ function Index() {
 
         {/* Start button */}
         <section className="animate-fade-up mt-12 flex flex-col items-center" style={{ animationDelay: "300ms" }}>
-          <button
-            type="button"
+          <Link
+            to="/tracking"
             className="group animate-glow-pulse relative flex h-44 w-44 items-center justify-center rounded-full transition-transform duration-500 hover:scale-[1.03] active:scale-[0.97]"
             style={{ background: "var(--gradient-primary)" }}
           >
@@ -90,7 +90,7 @@ function Index() {
               <Play className="h-8 w-8 fill-current" strokeWidth={0} />
               <span className="mt-2 font-display text-lg font-semibold tracking-wide">Start Ride</span>
             </div>
-          </button>
+          </Link>
           <p className="mt-5 text-xs uppercase tracking-[0.25em] text-muted-foreground">
             Tap to begin tracking
           </p>
