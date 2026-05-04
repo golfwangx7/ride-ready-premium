@@ -47,10 +47,22 @@ function Settings() {
     try {
       const u = localStorage.getItem(UNITS_KEY);
       if (u === "km" || u === "mi") setUnits(u);
+      if (localStorage.getItem("dev.mode") === "1") setDevMode(true);
     } catch {
       // ignore
     }
   }, []);
+
+  const enableDevMode = () => {
+    const next = versionTaps + 1;
+    if (next >= 7 && !devMode) {
+      setDevMode(true);
+      try { localStorage.setItem("dev.mode", "1"); } catch { /* */ }
+      setVersionTaps(0);
+      return;
+    }
+    setVersionTaps(next);
+  };
 
   const saveUnits = (u: "km" | "mi") => {
     setUnits(u);
