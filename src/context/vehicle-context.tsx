@@ -34,6 +34,7 @@ type Ctx = {
   setActive: (id: string) => void;
   resetStats: (id: string) => void;
   addVehicle: (input: { name: string; type: VehicleType; color?: string }) => Vehicle;
+  removeVehicle: (id: string) => void;
   getById: (id: string) => Vehicle | undefined;
 };
 
@@ -120,10 +121,23 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
     return created;
   }, []);
 
+  const removeVehicle = useCallback((id: string) => {
+    setVehicles((prev) => {
+      const next = prev.filter((v) => v.id !== id);
+      persistAll(next);
+      if (id === activeId && next.length > 0) {
+        const fallback = next[0].id;
+        setActiveId(fallback);
+        try { localStorage.setItem(ACTIVE_KEY, fallback); } catch {}
+      }
+      return next;
+    });
+  }, [activeId]);
+
   const getById = useCallback((id: string) => vehicles.find((v) => v.id === id), [vehicles]);
 
   return (
-    <VehicleContext.Provider value={{ vehicles, activeId, setActive, resetStats, addVehicle, getById }}>
+    <VehicleContext.Provider value={{ vehicles, activeId, setActive, resetStats, addVehicle, removeVehicle, getById }}>
       {children}
     </VehicleContext.Provider>
   );
