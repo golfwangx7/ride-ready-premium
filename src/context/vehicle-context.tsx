@@ -12,6 +12,8 @@ export type Vehicle = {
   rides: number;
   distance: number; // km
   image: string;
+  color?: string;
+  custom?: boolean;
 };
 
 const DEFAULTS: Vehicle[] = [
@@ -21,16 +23,25 @@ const DEFAULTS: Vehicle[] = [
 
 const STORAGE_KEY = "garage.vehicles";
 const ACTIVE_KEY = "garage.active";
+const CUSTOM_KEY = "garage.custom";
+
+type StatPatch = { rides?: number; distance?: number };
+type StoredDefault = { id: string } & StatPatch;
 
 type Ctx = {
   vehicles: Vehicle[];
   activeId: string;
   setActive: (id: string) => void;
   resetStats: (id: string) => void;
+  addVehicle: (input: { name: string; type: VehicleType; color?: string }) => Vehicle;
   getById: (id: string) => Vehicle | undefined;
 };
 
 const VehicleContext = createContext<Ctx | null>(null);
+
+function slug(s: string) {
+  return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "vehicle";
+}
 
 export function VehicleProvider({ children }: { children: ReactNode }) {
   const [vehicles, setVehicles] = useState<Vehicle[]>(DEFAULTS);
@@ -38,23 +49,35 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as Vehicle[];
-        // Merge stats only — keep image refs from defaults
-        setVehicles(DEFAULTS.map((d) => {
-          const saved = parsed.find((p) => p.id === d.id);
-          return saved ? { ...d, rides: saved.rides, distance: saved.distance } : d;
-        }));
-      }
+      const rawCustom = localStorage.getItem(CUSTOM_KEY);
+      const custom: Vehicle[] = rawCustom ? JSON.parse(rawCustom) : [];
+
+      const rawStats = localStorage.getItem(STORAGE_KEY);
+      const stats: StoredDefault[] = rawStats ? JSON.parse(rawStats) : [];
+
+      const merged = [
+        ...DEFAULTS.map((d) => {
+          const s = stats.find((p) => p.id === d.id);
+          return s ? { ...d, rides: s.rides ?? d.rides, distance: s.distance ?? d.distance } : d;
+        }),
+        ...custom,
+      ];
+      setVehicles(merged);
+
       const a = localStorage.getItem(ACTIVE_KEY);
-      if (a) setActiveId(a);
+      if (a && merged.some((v) => v.id === a)) setActiveId(a);
     } catch {}
   }, []);
 
-  const persist = (next: Vehicle[]) => {
-    setVehicles(next);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+  const persistAll = (next: Vehicle[]) => {
+    try {
+      const stats: StoredDefault[] = next
+        .filter((v) => !v.custom)
+        .map((v) => ({ id: v.id, rides: v.rides, distance: v.distance }));
+      const custom = next.filter((v) => v.custom);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+      localStorage.setItem(CUSTOM_KEY, JSON.stringify(custom));
+    } catch {}
   };
 
   const setActive = useCallback((id: string) => {
@@ -65,15 +88,42 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
   const resetStats = useCallback((id: string) => {
     setVehicles((prev) => {
       const next = prev.map((v) => v.id === id ? { ...v, rides: 0, distance: 0 } : v);
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+      persistAll(next);
       return next;
     });
+  }, []);
+
+  const addVehicle = useCallback<Ctx["addVehicle"]>((input) => {
+    const name = input.name.trim();
+    const baseId = slug(name);
+    let created!: Vehicle;
+    setVehicles((prev) => {
+      let id = baseId;
+      let n = 2;
+      while (prev.some((v) => v.id === id)) id = `${baseId}-${n++}`;
+      const placeholder = input.type === "car" ? carBmw : motoYamaha;
+      created = {
+        id,
+        name,
+        sub: input.color ? `${input.color}` : input.type === "car" ? "Car" : "Motorcycle",
+        type: input.type,
+        rides: 0,
+        distance: 0,
+        image: placeholder,
+        color: input.color,
+        custom: true,
+      };
+      const next = [...prev, created];
+      persistAll(next);
+      return next;
+    });
+    return created;
   }, []);
 
   const getById = useCallback((id: string) => vehicles.find((v) => v.id === id), [vehicles]);
 
   return (
-    <VehicleContext.Provider value={{ vehicles, activeId, setActive, resetStats, getById }}>
+    <VehicleContext.Provider value={{ vehicles, activeId, setActive, resetStats, addVehicle, getById }}>
       {children}
     </VehicleContext.Provider>
   );

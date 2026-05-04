@@ -9,6 +9,7 @@ import { AvatarPicker, useAvatar } from "@/components/avatar-picker";
 import { Camera } from "lucide-react";
 import { useVehicles, formatDistance, type Vehicle } from "@/context/vehicle-context";
 import { useProfile } from "@/context/profile-context";
+import { AddVehicleDialog } from "@/components/add-vehicle-dialog";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
