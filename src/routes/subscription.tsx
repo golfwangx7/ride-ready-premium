@@ -35,7 +35,7 @@ function Subscription() {
         style={{ background: "var(--gradient-primary)" }}
       />
 
-      <main className="relative mx-auto flex min-h-screen w-full max-w-md flex-col px-6 pb-24 pt-12">
+      <main className="relative mx-auto flex w-full max-w-md flex-col px-6 pb-16 pt-10">
         <header className="animate-fade-up flex items-center justify-between">
           <button
             type="button"
