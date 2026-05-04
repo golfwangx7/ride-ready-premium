@@ -104,13 +104,13 @@ function Index() {
               <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent" />
               <div className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full bg-background/60 px-2.5 py-1 text-[10px] uppercase tracking-wider backdrop-blur-md">
                 <MapPin className="h-3 w-3 text-primary" />
-                Pacific Coast Hwy
+                {lastRoute}
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-2 p-4">
-              <Stat icon={<TrendingUp className="h-3.5 w-3.5" />} label="Distance" value="84.2 km" />
+            <div key={mode} className="animate-fade-up grid grid-cols-3 gap-2 p-4">
+              <Stat icon={<TrendingUp className="h-3.5 w-3.5" />} label="Distance" value={lastDist} />
               <Stat icon={<Clock className="h-3.5 w-3.5" />} label="Duration" value="1h 42m" />
-              <Stat label="Top" value="142 km/h" highlight />
+              <Stat label="Top" value={lastTop} highlight />
             </div>
           </article>
         </section>
@@ -128,27 +128,6 @@ function Index() {
   );
 }
 
-function ToggleBtn({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`relative z-10 flex items-center justify-center gap-2 rounded-full py-2.5 text-sm font-medium transition-colors duration-300 ${
-        active ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
 
 function Stat({
   icon,
