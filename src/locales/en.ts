@@ -31,6 +31,8 @@ const en = {
   "settings.app": "App",
   "settings.subscription": "Subscription",
   "settings.legal": "Legal",
+  "settings.support": "Support",
+  "settings.contact_support": "Contact support",
   "settings.danger": "Danger Zone",
   "settings.edit_profile": "Edit profile",
   "settings.change_picture": "Change profile picture",
