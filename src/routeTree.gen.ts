@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as SummaryRouteImport } from './routes/summary'
 import { Route as ShareRouteImport } from './routes/share'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as NameRideRouteImport } from './routes/name-ride'
 import { Route as FeedRouteImport } from './routes/feed'
@@ -30,6 +31,11 @@ const SummaryRoute = SummaryRouteImport.update({
 const ShareRoute = ShareRouteImport.update({
   id: '/share',
   path: '/share',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/feed': typeof FeedRoute
   '/name-ride': typeof NameRideRoute
   '/profile': typeof ProfileRoute
+  '/settings': typeof SettingsRoute
   '/share': typeof ShareRoute
   '/summary': typeof SummaryRoute
   '/tracking': typeof TrackingRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/feed': typeof FeedRoute
   '/name-ride': typeof NameRideRoute
   '/profile': typeof ProfileRoute
+  '/settings': typeof SettingsRoute
   '/share': typeof ShareRoute
   '/summary': typeof SummaryRoute
   '/tracking': typeof TrackingRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/feed': typeof FeedRoute
   '/name-ride': typeof NameRideRoute
   '/profile': typeof ProfileRoute
+  '/settings': typeof SettingsRoute
   '/share': typeof ShareRoute
   '/summary': typeof SummaryRoute
   '/tracking': typeof TrackingRoute
@@ -88,6 +97,7 @@ export interface FileRouteTypes {
     | '/feed'
     | '/name-ride'
     | '/profile'
+    | '/settings'
     | '/share'
     | '/summary'
     | '/tracking'
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/feed'
     | '/name-ride'
     | '/profile'
+    | '/settings'
     | '/share'
     | '/summary'
     | '/tracking'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/feed'
     | '/name-ride'
     | '/profile'
+    | '/settings'
     | '/share'
     | '/summary'
     | '/tracking'
@@ -116,6 +128,7 @@ export interface RootRouteChildren {
   FeedRoute: typeof FeedRoute
   NameRideRoute: typeof NameRideRoute
   ProfileRoute: typeof ProfileRoute
+  SettingsRoute: typeof SettingsRoute
   ShareRoute: typeof ShareRoute
   SummaryRoute: typeof SummaryRoute
   TrackingRoute: typeof TrackingRoute
@@ -142,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/share'
       fullPath: '/share'
       preLoaderRoute: typeof ShareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -180,6 +200,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeedRoute: FeedRoute,
   NameRideRoute: NameRideRoute,
   ProfileRoute: ProfileRoute,
+  SettingsRoute: SettingsRoute,
   ShareRoute: ShareRoute,
   SummaryRoute: SummaryRoute,
   TrackingRoute: TrackingRoute,
