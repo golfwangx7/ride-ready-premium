@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Share2, Bookmark, ArrowLeft, Gauge, Route as RouteIcon, Clock, Wind, Flag } from "lucide-react";
+import { Share2, Bookmark, ArrowLeft, Gauge, Route as RouteIcon, Clock, Wind, Flag, Car, Bike } from "lucide-react";
 import mapSummary from "@/assets/map-summary.jpg";
 import { useRide } from "@/context/ride-context";
+import { useVehicles } from "@/context/vehicle-context";
 
 export const Route = createFileRoute("/summary")({
   component: Summary,
@@ -9,6 +10,8 @@ export const Route = createFileRoute("/summary")({
 
 function Summary() {
   const { name } = useRide();
+  const { vehicles, activeId } = useVehicles();
+  const active = vehicles.find((v) => v.id === activeId) ?? vehicles[0];
   const [first, ...rest] = name.split(" ");
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
@@ -89,6 +92,28 @@ function Summary() {
             </p>
           </div>
         </section>
+
+        {/* Active vehicle */}
+        {active && (
+          <section className="animate-fade-up mt-5" style={{ animationDelay: "380ms" }}>
+            <Link
+              to="/vehicle/$vehicleId"
+              params={{ vehicleId: active.id }}
+              className="group flex items-center gap-3 rounded-2xl border border-border bg-card/40 px-4 py-3 backdrop-blur-md transition-all hover:border-primary/40"
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 text-primary">
+                {active.type === "car" ? <Car className="h-4 w-4" /> : <Bike className="h-4 w-4" />}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Ridden with</p>
+                <p className="truncate font-display text-sm font-medium">{active.name}</p>
+              </div>
+              <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground transition-colors group-hover:text-primary">
+                {active.type === "car" ? "Car" : "Moto"}
+              </span>
+            </Link>
+          </section>
+        )}
       </main>
 
       {/* Bottom actions */}
