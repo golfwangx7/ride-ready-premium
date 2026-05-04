@@ -77,14 +77,16 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   return (
-    <ModeProvider>
-      <RideProvider>
-        <VehicleProvider>
-          <ProfileProvider>
-            <Outlet />
-          </ProfileProvider>
-        </VehicleProvider>
-      </RideProvider>
-    </ModeProvider>
+    <I18nProvider>
+      <ModeProvider>
+        <RideProvider>
+          <VehicleProvider>
+            <ProfileProvider>
+              <Outlet />
+            </ProfileProvider>
+          </VehicleProvider>
+        </RideProvider>
+      </ModeProvider>
+    </I18nProvider>
   );
 }
