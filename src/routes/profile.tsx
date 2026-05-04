@@ -409,9 +409,9 @@ function VehicleCard({
         {/* Bottom: stats */}
         <div className="relative flex items-center justify-between border-t border-border/60 px-5 py-3.5">
           <div className="flex items-center gap-5">
-            <Stat label="Distance" value={formatDistance(vehicle.distance)} />
+            <MiniStat label="Distance" value={formatDistance(vehicle.distance)} />
             <span className="h-6 w-px bg-border" aria-hidden />
-            <Stat label="Rides" value={String(vehicle.rides)} />
+            <MiniStat label="Rides" value={String(vehicle.rides)} />
           </div>
           <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
         </div>
@@ -420,7 +420,7 @@ function VehicleCard({
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function MiniStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col leading-none">
       <span className="font-display text-[15px] font-medium tabular-nums">{value}</span>
