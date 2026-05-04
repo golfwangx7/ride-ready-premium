@@ -109,23 +109,22 @@ function Subscription() {
               <div className="grid grid-cols-2 gap-3">
                 {/* Yearly — highlighted */}
                 <div
-                  className="relative overflow-hidden rounded-2xl border border-primary/50 p-4"
+                  className="relative rounded-2xl border border-primary/50 p-4 pt-7"
                   style={{ background: "color-mix(in oklab, var(--primary) 8%, transparent)" }}
                 >
                   <span
-                    className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full px-2.5 py-1 text-[9px] font-semibold uppercase tracking-wider text-primary-foreground"
-                    style={{ background: "var(--gradient-primary)" }}
+                    className="absolute right-3 top-3 rounded-full bg-primary/15 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary"
                   >
                     Best Value
                   </span>
-                  <p className="mt-1 font-display text-sm font-medium">Yearly</p>
+                  <p className="font-display text-sm font-medium">Yearly</p>
                   <p className="mt-1 font-display text-2xl font-light tabular-nums">$29.99</p>
                   <p className="text-[11px] text-muted-foreground">per year</p>
                   <p className="mt-2 text-[11px] font-medium text-primary">Save 40%</p>
                 </div>
 
                 {/* Monthly */}
-                <div className="relative rounded-2xl border border-border bg-background/40 p-4">
+                <div className="relative rounded-2xl border border-border bg-background/40 p-4 pt-7">
                   <p className="font-display text-sm font-medium">Monthly</p>
                   <p className="mt-1 font-display text-2xl font-light tabular-nums">$4.99</p>
                   <p className="text-[11px] text-muted-foreground">per month</p>
