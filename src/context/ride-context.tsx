@@ -49,10 +49,15 @@ type Ctx = {
 const RideContext = createContext<Ctx | null>(null);
 
 // Tuning constants — chosen to balance accuracy and battery.
-// We sample the OS at high accuracy but only KEEP a point if it differs
-// meaningfully in time or distance. This avoids dense, noisy traces.
-const MIN_SAMPLE_INTERVAL_MS = 3000; // don't record more often than every 3s
-const MIN_SAMPLE_DISTANCE_M = 10; // ...unless the user moved at least 10m
+// We poll the OS at adaptive intervals (faster when moving, slower when
+// stationary) and only KEEP a fix if it differs meaningfully in time or
+// distance. This avoids dense, noisy traces and minimizes GPS wake-ups.
+const ACTIVE_POLL_MS = 5000; // poll every 5s while moving
+const IDLE_POLL_MS = 30000; // back off to every 30s while stationary
+const STATIONARY_SPEED_MPS = 0.7; // < ~2.5 km/h counts as stationary
+const STATIONARY_DISTANCE_M = 8; // ...or didn't move at least this far
+const MIN_SAMPLE_INTERVAL_MS = 3000; // never record points faster than this
+const MIN_SAMPLE_DISTANCE_M = 10; // unless the user moved at least 10m
 const MAX_ACCURACY_M = 50; // drop fixes worse than ~50m accuracy
 const TICK_MS = 1000; // duration ticker
 
@@ -78,15 +83,16 @@ export function RideProvider({ children }: { children: ReactNode }) {
   const [currentSpeed, setCurrentSpeed] = useState(0);
   const [maxSpeed, setMaxSpeed] = useState(0);
 
-  const watchIdRef = useRef<number | null>(null);
+  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastKeptRef = useRef<RoutePoint | null>(null);
+  const stationaryRef = useRef(false);
+  const activeRef = useRef(false);
 
   const stopWatch = useCallback(() => {
-    if (watchIdRef.current != null && typeof navigator !== "undefined") {
-      navigator.geolocation?.clearWatch(watchIdRef.current);
-    }
-    watchIdRef.current = null;
+    activeRef.current = false;
+    if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current);
+    pollTimeoutRef.current = null;
   }, []);
 
   const stopTick = useCallback(() => {
@@ -112,35 +118,69 @@ export function RideProvider({ children }: { children: ReactNode }) {
     }
 
     const last = lastKeptRef.current;
+    let movedDistance = 0;
     if (last) {
       const dt = now - last.t;
-      const dd = haversine(last, point);
+      movedDistance = haversine(last, point);
       // Throttle: keep point only if enough time AND/OR enough distance passed.
-      if (dt < MIN_SAMPLE_INTERVAL_MS && dd < MIN_SAMPLE_DISTANCE_M) return;
-      setDistance((d) => d + dd);
+      if (dt < MIN_SAMPLE_INTERVAL_MS && movedDistance < MIN_SAMPLE_DISTANCE_M) {
+        stationaryRef.current =
+          (typeof speed === "number" ? speed < STATIONARY_SPEED_MPS : true) &&
+          movedDistance < STATIONARY_DISTANCE_M;
+        return;
+      }
+      setDistance((d) => d + movedDistance);
     }
+
+    stationaryRef.current =
+      (typeof speed === "number" ? speed < STATIONARY_SPEED_MPS : false) &&
+      movedDistance < STATIONARY_DISTANCE_M;
+
     lastKeptRef.current = point;
     setPoints((p) => [...p, point]);
   }, []);
 
-  const startWatch = useCallback(() => {
+  // Adaptive polling: faster while moving, slower while stationary.
+  // Using one-shot getCurrentPosition + setTimeout lets the OS power down the
+  // GPS chip between fixes — watchPosition keeps it warm continuously.
+  const pollOnceRef = useRef<() => void>(() => {});
+  const scheduleNextPoll = useCallback(() => {
+    if (!activeRef.current) return;
+    if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current);
+    const delay = stationaryRef.current ? IDLE_POLL_MS : ACTIVE_POLL_MS;
+    pollTimeoutRef.current = setTimeout(() => pollOnceRef.current(), delay);
+  }, []);
+
+  const pollOnce = useCallback(() => {
+    if (!activeRef.current) return;
     if (typeof navigator === "undefined" || !navigator.geolocation) return;
-    if (watchIdRef.current != null) return;
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      handlePosition,
-      () => {
-        // Silently ignore errors (permission denied, timeout). UI stays usable.
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        handlePosition(pos);
+        scheduleNextPoll();
       },
+      () => scheduleNextPoll(),
       {
-        // Balanced accuracy: enableHighAccuracy:false hints to use network/wifi
-        // instead of constant GPS, which is significantly more battery-friendly.
+        // Balanced accuracy: prefer network/wifi over continuous GPS to save power.
         enableHighAccuracy: false,
-        // Allow the OS to return a recent fix instead of forcing a new one.
-        maximumAge: 2000,
+        // Accept a recent cached fix instead of waking the GPS chip every time.
+        maximumAge: 4000,
         timeout: 15000,
       },
     );
-  }, [handlePosition]);
+  }, [handlePosition, scheduleNextPoll]);
+
+  useEffect(() => {
+    pollOnceRef.current = pollOnce;
+  }, [pollOnce]);
+
+  const startWatch = useCallback(() => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+    if (activeRef.current) return;
+    activeRef.current = true;
+    stationaryRef.current = false;
+    pollOnce();
+  }, [pollOnce]);
 
   const startTick = useCallback(() => {
     if (tickRef.current) return;
