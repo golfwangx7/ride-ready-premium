@@ -20,6 +20,8 @@ const en = {
   "profile.vehicles": "vehicles",
   "profile.add": "Add",
   "profile.add_vehicle": "Add Vehicle",
+  "profile.empty_title": "No vehicles yet",
+  "profile.empty_subtitle": "Add your first vehicle to start tracking rides",
   // settings
   "settings.title": "Settings",
   "settings.account": "Account",

@@ -123,20 +123,52 @@ function Profile() {
           </div>
 
           <div className="space-y-3">
-            {vehicles.map((v, i) => (
-              <VehicleCard key={v.id} vehicle={v} delay={300 + i * 80} active={v.id === activeId} />
-            ))}
+            {vehicles.length === 0 ? (
+              <div
+                className="animate-fade-up flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card/30 px-6 py-12 text-center backdrop-blur-md"
+                style={{ animationDelay: "300ms" }}
+              >
+                <div className="relative mb-5">
+                  <div
+                    className="absolute inset-0 -m-2 rounded-full opacity-40 blur-xl"
+                    style={{ background: "var(--gradient-primary)" }}
+                  />
+                  <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-card">
+                    <Car className="h-6 w-6 text-primary" strokeWidth={1.5} />
+                    <Bike className="absolute h-5 w-5 translate-x-3 translate-y-3 text-muted-foreground" strokeWidth={1.5} />
+                  </div>
+                </div>
+                <h3 className="font-display text-base font-medium">{t("profile.empty_title")}</h3>
+                <p className="mt-1.5 max-w-[240px] text-[12px] leading-relaxed text-muted-foreground">
+                  {t("profile.empty_subtitle")}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setAddingVehicle(true)}
+                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-[var(--shadow-glow-sm)] transition-all hover:scale-[1.02] active:scale-95"
+                >
+                  <Plus className="h-4 w-4" />
+                  {t("profile.add_vehicle")}
+                </button>
+              </div>
+            ) : (
+              <>
+                {vehicles.map((v, i) => (
+                  <VehicleCard key={v.id} vehicle={v} delay={300 + i * 80} active={v.id === activeId} />
+                ))}
 
-            {/* Add vehicle ghost card */}
-            <button
-              type="button"
-              onClick={() => setAddingVehicle(true)}
-              className="animate-fade-up group flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-card/30 py-5 text-sm text-muted-foreground transition-all hover:border-primary/50 hover:bg-primary/5 hover:text-primary active:scale-[0.99]"
-              style={{ animationDelay: `${300 + vehicles.length * 80}ms` }}
-            >
-              <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" />
-              {t("profile.add_vehicle")}
-            </button>
+                {/* Add vehicle ghost card */}
+                <button
+                  type="button"
+                  onClick={() => setAddingVehicle(true)}
+                  className="animate-fade-up group flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-card/30 py-5 text-sm text-muted-foreground transition-all hover:border-primary/50 hover:bg-primary/5 hover:text-primary active:scale-[0.99]"
+                  style={{ animationDelay: `${300 + vehicles.length * 80}ms` }}
+                >
+                  <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" />
+                  {t("profile.add_vehicle")}
+                </button>
+              </>
+            )}
           </div>
         </section>
       </main>
