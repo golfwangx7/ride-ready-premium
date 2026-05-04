@@ -149,6 +149,15 @@ function Index() {
           <NavBtn to="/profile" icon={<User className="h-5 w-5" />} label={t("nav.profile")} />
         </div>
       </nav>
+
+      <VehicleSelector
+        open={picking}
+        vehicles={vehicles}
+        activeId={activeId}
+        onSelect={(id) => { setActive(id); setPicking(false); }}
+        onClose={() => setPicking(false)}
+        title={t("home.select_vehicle")}
+      />
     </div>
   );
 }
