@@ -236,10 +236,20 @@ export function RideProvider({ children }: { children: ReactNode }) {
     tickRef.current = setInterval(() => setDuration((s) => s + 1), TICK_MS);
   }, []);
 
+  // Stable ref so handlePosition (created earlier) can call latest startTick.
+  const startTickRef = useRef(startTick);
+  useEffect(() => {
+    startTickRef.current = startTick;
+  }, [startTick]);
+
   const reset = useCallback(() => {
     stopWatch();
     stopTick();
     lastKeptRef.current = null;
+    stationarySinceRef.current = null;
+    pauseAnchorRef.current = null;
+    autoPausedRef.current = false;
+    setAutoPaused(false);
     setPoints([]);
     setDuration(0);
     setDistance(0);
