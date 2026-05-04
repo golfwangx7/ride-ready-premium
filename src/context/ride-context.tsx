@@ -306,7 +306,7 @@ export function RideProvider({ children }: { children: ReactNode }) {
 
   return (
     <RideContext.Provider
-      value={{ name, setName, status, points, stats, start, pause, resume, stop, reset }}
+      value={{ name, setName, status, autoPaused, points, stats, start, pause, resume, stop, reset }}
     >
       {children}
     </RideContext.Provider>
