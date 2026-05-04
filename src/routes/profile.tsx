@@ -10,6 +10,7 @@ import { Camera } from "lucide-react";
 import { useVehicles, formatDistance, type Vehicle } from "@/context/vehicle-context";
 import { useProfile } from "@/context/profile-context";
 import { AddVehicleDialog } from "@/components/add-vehicle-dialog";
+import { useI18n } from "@/context/i18n-context";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
