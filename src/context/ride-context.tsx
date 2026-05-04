@@ -87,6 +87,10 @@ export function RideProvider({ children }: { children: ReactNode }) {
   const [distance, setDistance] = useState(0);
   const [currentSpeed, setCurrentSpeed] = useState(0);
   const [maxSpeed, setMaxSpeed] = useState(0);
+  const [autoPaused, setAutoPaused] = useState(false);
+  const stationarySinceRef = useRef<number | null>(null);
+  const autoPausedRef = useRef(false);
+  const pauseAnchorRef = useRef<RoutePoint | null>(null);
 
   const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
