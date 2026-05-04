@@ -1,37 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Settings, Plus, Bike, Car, MapPin, ChevronRight, Home, Newspaper, User } from "lucide-react";
+import { Settings, Plus, Bike, Car, MapPin, ChevronRight, Home, Newspaper, User, Star } from "lucide-react";
 import avatar from "@/assets/avatar.jpg";
-import carBmw from "@/assets/car-bmw.jpg";
-import motoYamaha from "@/assets/moto-yamaha.jpg";
 import { ModeToggle, modeStats } from "@/components/mode-toggle";
 import { useMode } from "@/context/mode-context";
 import { SocialLinks, SocialEditor, useSocials } from "@/components/socials";
 import { AvatarPicker, useAvatar } from "@/components/avatar-picker";
 import { Camera } from "lucide-react";
+import { useVehicles, formatDistance, type Vehicle } from "@/context/vehicle-context";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
 });
-
-const vehicles = [
-  {
-    name: "BMW M4",
-    sub: "Competition · 2023",
-    type: "car" as const,
-    rides: 42,
-    distance: "3,210 km",
-    image: carBmw,
-  },
-  {
-    name: "Yamaha R1",
-    sub: "Race Blu · 2022",
-    type: "moto" as const,
-    rides: 86,
-    distance: "5,684 km",
-    image: motoYamaha,
-  },
-];
 
 function Profile() {
   const { mode } = useMode();
@@ -40,6 +20,7 @@ function Profile() {
   const [editing, setEditing] = useState(false);
   const { src: avatarSrc, setSrc: setAvatarSrc } = useAvatar(avatar);
   const [pickingAvatar, setPickingAvatar] = useState(false);
+  const { vehicles, activeId } = useVehicles();
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
@@ -128,7 +109,7 @@ function Profile() {
 
           <div className="space-y-3">
             {vehicles.map((v, i) => (
-              <VehicleCard key={v.name} vehicle={v} delay={300 + i * 80} />
+              <VehicleCard key={v.id} vehicle={v} delay={300 + i * 80} active={v.id === activeId} />
             ))}
 
             {/* Add vehicle ghost card */}
@@ -193,14 +174,18 @@ function Stat({
 function VehicleCard({
   vehicle,
   delay,
+  active,
 }: {
-  vehicle: (typeof vehicles)[number];
+  vehicle: Vehicle;
   delay: number;
+  active?: boolean;
 }) {
   const Icon = vehicle.type === "car" ? Car : Bike;
   return (
-    <article
-      className="animate-fade-up group relative overflow-hidden rounded-2xl border border-border backdrop-blur-md transition-all hover:border-primary/40 hover:shadow-[var(--shadow-glow-sm)]"
+    <Link
+      to="/vehicle/$vehicleId"
+      params={{ vehicleId: vehicle.id }}
+      className="animate-fade-up group relative block overflow-hidden rounded-2xl border border-border backdrop-blur-md transition-all hover:border-primary/40 hover:shadow-[var(--shadow-glow-sm)]"
       style={{ background: "var(--gradient-surface)", animationDelay: `${delay}ms` }}
     >
       <div className="flex items-stretch">
@@ -220,6 +205,11 @@ function VehicleCard({
             <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-primary">
               <Icon className="h-3 w-3" />
               {vehicle.type === "car" ? "Car" : "Motorcycle"}
+              {active && (
+                <span className="ml-1 inline-flex items-center gap-0.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px]">
+                  <Star className="h-2.5 w-2.5 fill-primary" /> Active
+                </span>
+              )}
             </div>
             <h3 className="mt-1.5 font-display text-base font-semibold leading-tight">
               {vehicle.name}
@@ -229,13 +219,13 @@ function VehicleCard({
           <div className="flex items-center justify-between">
             <div className="flex gap-3 text-[11px] text-muted-foreground">
               <span><span className="text-foreground font-medium">{vehicle.rides}</span> rides</span>
-              <span><span className="text-foreground font-medium">{vehicle.distance}</span></span>
+              <span><span className="text-foreground font-medium">{formatDistance(vehicle.distance)}</span></span>
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
           </div>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
 

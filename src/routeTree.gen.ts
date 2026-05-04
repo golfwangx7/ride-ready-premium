@@ -17,6 +17,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as NameRideRouteImport } from './routes/name-ride'
 import { Route as FeedRouteImport } from './routes/feed'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as VehicleVehicleIdRouteImport } from './routes/vehicle.$vehicleId'
 
 const TrackingRoute = TrackingRouteImport.update({
   id: '/tracking',
@@ -58,6 +59,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VehicleVehicleIdRoute = VehicleVehicleIdRouteImport.update({
+  id: '/vehicle/$vehicleId',
+  path: '/vehicle/$vehicleId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/share': typeof ShareRoute
   '/summary': typeof SummaryRoute
   '/tracking': typeof TrackingRoute
+  '/vehicle/$vehicleId': typeof VehicleVehicleIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/share': typeof ShareRoute
   '/summary': typeof SummaryRoute
   '/tracking': typeof TrackingRoute
+  '/vehicle/$vehicleId': typeof VehicleVehicleIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/share': typeof ShareRoute
   '/summary': typeof SummaryRoute
   '/tracking': typeof TrackingRoute
+  '/vehicle/$vehicleId': typeof VehicleVehicleIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/share'
     | '/summary'
     | '/tracking'
+    | '/vehicle/$vehicleId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/share'
     | '/summary'
     | '/tracking'
+    | '/vehicle/$vehicleId'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/share'
     | '/summary'
     | '/tracking'
+    | '/vehicle/$vehicleId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   ShareRoute: typeof ShareRoute
   SummaryRoute: typeof SummaryRoute
   TrackingRoute: typeof TrackingRoute
+  VehicleVehicleIdRoute: typeof VehicleVehicleIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vehicle/$vehicleId': {
+      id: '/vehicle/$vehicleId'
+      path: '/vehicle/$vehicleId'
+      fullPath: '/vehicle/$vehicleId'
+      preLoaderRoute: typeof VehicleVehicleIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShareRoute: ShareRoute,
   SummaryRoute: SummaryRoute,
   TrackingRoute: TrackingRoute,
+  VehicleVehicleIdRoute: VehicleVehicleIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
