@@ -107,7 +107,7 @@ function Tracking() {
           </button>
 
           <Link
-            to="/"
+            to="/summary"
             aria-label="Stop ride"
             className="group relative flex h-24 w-24 flex-col items-center justify-center rounded-full text-primary-foreground transition-all duration-300 hover:scale-105 active:scale-95"
             style={{
