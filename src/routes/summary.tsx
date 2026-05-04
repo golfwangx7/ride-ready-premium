@@ -81,9 +81,9 @@ function Summary() {
 
         {/* Stats grid */}
         <section className="animate-fade-up mt-6 grid grid-cols-2 gap-3" style={{ animationDelay: "240ms" }}>
-          <StatCard icon={<RouteIcon className="h-4 w-4" />} label="Distance" value="84.2" unit="km" featured />
-          <StatCard icon={<Clock className="h-4 w-4" />} label="Duration" value="1:42" unit="h" />
-          <StatCard icon={<Wind className="h-4 w-4" />} label="Avg Speed" value="49" unit="km/h" />
+          <StatCard icon={<RouteIcon className="h-4 w-4" />} label="Distance" value={distanceKm} unit="km" featured />
+          <StatCard icon={<Clock className="h-4 w-4" />} label="Duration" value={durationStr} unit="h" />
+          <StatCard icon={<Wind className="h-4 w-4" />} label="Avg Speed" value={String(avgKmh)} unit="km/h" />
           <StatCard icon={<Flag className="h-4 w-4" />} label="Stops" value="3" unit="" />
         </section>
 
