@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Share2, Bookmark, ArrowLeft, Gauge, Route as RouteIcon, Clock, Wind, Flag, Car, Bike, Sparkles, ChevronRight } from "lucide-react";
 import mapSummary from "@/assets/map-summary.jpg";
-import { useRide } from "@/context/ride-context";
+import { useRide, formatHoursMinutes, metersToKm, mpsToKmh } from "@/context/ride-context";
 import { useVehicles } from "@/context/vehicle-context";
 import { usePremium } from "@/context/premium-context";
 
