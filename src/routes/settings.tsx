@@ -118,7 +118,7 @@ function Settings() {
 
         {/* Legal */}
         <Group title={t("settings.legal")} delay={260}>
-          <Row icon={<Shield className="h-4 w-4" />} label={t("settings.privacy")} />
+          <Row icon={<Shield className="h-4 w-4" />} label={t("settings.privacy")} onClick={() => navigate({ to: "/privacy" })} />
           <Row icon={<FileText className="h-4 w-4" />} label={t("settings.terms")} />
         </Group>
 
