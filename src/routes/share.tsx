@@ -49,8 +49,8 @@ function SharePage() {
     setBusy("share");
     try {
       const data = {
-        title: "Sunday Ride · Apex",
-        text: "84.2 km · 1h 42m · Avg 49 km/h — tracked with Apex",
+        title: "Sunday Ride · Rydr",
+        text: "84.2 km · 1h 42m · Avg 49 km/h — tracked with Rydr",
         url: typeof window !== "undefined" ? window.location.href : "",
       };
       const nav = typeof navigator !== "undefined" ? navigator : null;
