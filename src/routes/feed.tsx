@@ -1,16 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Bike, Car, MapPin, Heart, Home, Newspaper, User, Wind, Route as RouteIcon, Clock } from "lucide-react";
+import { Bike, Car, MapPin, Heart, Home, Newspaper, User, Wind, Route as RouteIcon, Clock, Globe } from "lucide-react";
 import feed1 from "@/assets/feed-1.jpg";
 import feed2 from "@/assets/feed-2.jpg";
 import feed3 from "@/assets/feed-3.jpg";
 import avatar from "@/assets/avatar.jpg";
+import { ModeToggle } from "@/components/mode-toggle";
+import { useMode } from "@/context/mode-context";
 
 export const Route = createFileRoute("/feed")({
   component: Feed,
 });
 
-type Filter = "nearby" | "car" | "moto";
+type Filter = "all" | "mode";
 
 const posts = [
   {
