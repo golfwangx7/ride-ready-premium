@@ -30,6 +30,15 @@ function Profile() {
   const { profile } = useProfile();
   const [addingVehicle, setAddingVehicle] = useState(false);
   const { t } = useI18n();
+  const { isPremium, openPaywall } = usePremium();
+  const FREE_VEHICLE_LIMIT = 1;
+  const tryAddVehicle = () => {
+    if (!isPremium && vehicles.length >= FREE_VEHICLE_LIMIT) {
+      openPaywall({ reason: "Add unlimited vehicles with Premium" });
+      return;
+    }
+    setAddingVehicle(true);
+  };
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
@@ -117,7 +126,7 @@ function Profile() {
             </div>
             <button
               type="button"
-              onClick={() => setAddingVehicle(true)}
+              onClick={tryAddVehicle}
               className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/15 active:scale-95"
             >
               <Plus className="h-3.5 w-3.5" />
@@ -147,7 +156,7 @@ function Profile() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => setAddingVehicle(true)}
+                  onClick={tryAddVehicle}
                   className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-[var(--shadow-glow-sm)] transition-all hover:scale-[1.02] active:scale-95"
                 >
                   <Plus className="h-4 w-4" />
@@ -169,7 +178,7 @@ function Profile() {
                 {/* Add vehicle ghost card */}
                 <button
                   type="button"
-                  onClick={() => setAddingVehicle(true)}
+                  onClick={tryAddVehicle}
                   className="animate-fade-up group flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-card/30 py-5 text-sm text-muted-foreground transition-all hover:border-primary/50 hover:bg-primary/5 hover:text-primary active:scale-[0.99]"
                   style={{ animationDelay: `${300 + vehicles.length * 80}ms` }}
                 >

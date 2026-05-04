@@ -5,7 +5,7 @@ import { usePremium } from "@/context/premium-context";
 type Plan = "monthly" | "yearly";
 
 export function Paywall() {
-  const { paywallOpen, closePaywall, setPremium } = usePremium();
+  const { paywallOpen, paywallReason, closePaywall, setPremium } = usePremium();
   const [plan, setPlan] = useState<Plan>("yearly");
 
   if (!paywallOpen) return null;
@@ -62,7 +62,7 @@ export function Paywall() {
               Upgrade to Rydr Premium
             </h2>
             <p className="mt-2.5 max-w-[280px] text-sm text-muted-foreground">
-              Pick a plan and unlock the full experience.
+              {paywallReason ?? "Pick a plan and unlock the full experience."}
             </p>
           </div>
 

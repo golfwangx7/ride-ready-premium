@@ -122,7 +122,7 @@ function Summary() {
           <section className="animate-fade-up mt-5" style={{ animationDelay: "440ms" }}>
             <button
               type="button"
-              onClick={openPaywall}
+              onClick={() => openPaywall()}
               className="group relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-primary/25 px-4 py-3.5 text-left backdrop-blur-md transition-[border-color,transform] hover:border-primary/50 active:scale-[0.99]"
               style={{ background: "var(--gradient-surface)" }}
             >
