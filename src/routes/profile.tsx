@@ -109,7 +109,7 @@ function Profile() {
 
           <div className="space-y-3">
             {vehicles.map((v, i) => (
-              <VehicleCard key={v.name} vehicle={v} delay={300 + i * 80} />
+              <VehicleCard key={v.id} vehicle={v} delay={300 + i * 80} active={v.id === activeId} />
             ))}
 
             {/* Add vehicle ghost card */}
