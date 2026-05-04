@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   ArrowLeft,
@@ -16,6 +16,7 @@ import {
   Check,
 } from "lucide-react";
 import { useSocials, SocialEditor } from "@/components/socials";
+import { useProfile } from "@/context/profile-context";
 
 export const Route = createFileRoute("/settings")({
   component: Settings,
@@ -25,6 +26,8 @@ const UNITS_KEY = "ride.units";
 const LANG_KEY = "ride.lang";
 
 function Settings() {
+  const navigate = useNavigate();
+  const { profile } = useProfile();
   const { socials, setSocials } = useSocials();
   const [editingSocials, setEditingSocials] = useState(false);
   const [units, setUnits] = useState<"km" | "mi">("km");
@@ -79,7 +82,7 @@ function Settings() {
 
         {/* Account */}
         <Group title="Account" delay={80}>
-          <Row icon={<User className="h-4 w-4" />} label="Edit profile" hint="Alex Carter" />
+          <Row icon={<User className="h-4 w-4" />} label="Edit profile" hint={profile.name} onClick={() => navigate({ to: "/edit-profile" })} />
           <Row icon={<Camera className="h-4 w-4" />} label="Change profile picture" />
           <Row
             icon={<AtSign className="h-4 w-4" />}
