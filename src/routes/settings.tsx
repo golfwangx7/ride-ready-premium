@@ -14,6 +14,10 @@ import {
   RotateCcw,
   Trash2,
   Check,
+  LifeBuoy,
+  Mail,
+  Copy,
+  X,
 } from "lucide-react";
 import { useSocials, SocialEditor } from "@/components/socials";
 import { useProfile } from "@/context/profile-context";
@@ -33,6 +37,7 @@ function Settings() {
   const [editingSocials, setEditingSocials] = useState(false);
   const [units, setUnits] = useState<"km" | "mi">("km");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -116,8 +121,17 @@ function Settings() {
           />
         </Group>
 
+        {/* Support */}
+        <Group title={t("settings.support")} delay={250}>
+          <Row
+            icon={<LifeBuoy className="h-4 w-4" />}
+            label={t("settings.contact_support")}
+            onClick={() => setSupportOpen(true)}
+          />
+        </Group>
+
         {/* Legal */}
-        <Group title={t("settings.legal")} delay={260}>
+        <Group title={t("settings.legal")} delay={290}>
           <Row icon={<Shield className="h-4 w-4" />} label={t("settings.privacy")} onClick={() => navigate({ to: "/privacy" })} />
           <Row icon={<FileText className="h-4 w-4" />} label={t("settings.terms")} onClick={() => navigate({ to: "/terms" })} />
         </Group>
@@ -176,6 +190,94 @@ function Settings() {
       />
 
       <DeleteDialog open={confirmDelete} onClose={() => setConfirmDelete(false)} />
+      <SupportSheet open={supportOpen} onClose={() => setSupportOpen(false)} />
+    </div>
+  );
+}
+
+function SupportSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [copied, setCopied] = useState(false);
+  const email = "rydr.app@outlook.com";
+  const subject = "Rydr Support Request";
+  const body = "Hi, I need help with...";
+  const mailto = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+  if (!open) return null;
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className="animate-fade-up absolute inset-0 bg-background/80 backdrop-blur-md"
+      />
+      <div className="animate-fade-up relative z-10 w-full max-w-md rounded-t-3xl border border-border bg-card p-6 shadow-[var(--shadow-elegant)] sm:rounded-3xl">
+        <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-border sm:hidden" />
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 text-primary">
+              <LifeBuoy className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="font-display text-lg font-semibold">Need a hand?</h2>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                We usually reply within 24 hours.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+
+        <div className="mt-5 rounded-2xl border border-border bg-background/40 p-4">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Email</p>
+          <p className="mt-1 break-all font-mono text-sm text-foreground">{email}</p>
+        </div>
+
+        <div className="mt-5 space-y-3">
+          <a
+            href={mailto}
+            onClick={onClose}
+            className="relative flex h-12 w-full items-center justify-center gap-2 rounded-full font-display text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.01] active:scale-[0.99]"
+            style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow-sm)" }}
+          >
+            <span className="absolute inset-0 rounded-full border border-white/20" />
+            <Mail className="h-4 w-4" />
+            Email support
+          </a>
+          <button
+            type="button"
+            onClick={copy}
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-border bg-card/60 text-sm font-medium transition-colors hover:border-primary/40"
+          >
+            {copied ? (
+              <>
+                <Check className="h-4 w-4 text-primary" /> Copied
+              </>
+            ) : (
+              <>
+                <Copy className="h-4 w-4" /> Copy email address
+              </>
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -28,6 +28,8 @@ const es: Partial<Record<TranslationKey, string>> = {
   "settings.app": "Aplicación",
   "settings.subscription": "Suscripción",
   "settings.legal": "Legal",
+  "settings.support": "Soporte",
+  "settings.contact_support": "Contactar con soporte",
   "settings.danger": "Zona de peligro",
   "settings.edit_profile": "Editar perfil",
   "settings.change_picture": "Cambiar foto de perfil",
