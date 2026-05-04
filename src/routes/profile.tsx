@@ -3,6 +3,8 @@ import { Settings, Plus, Bike, Car, MapPin, ChevronRight, Home, Newspaper, User 
 import avatar from "@/assets/avatar.jpg";
 import carBmw from "@/assets/car-bmw.jpg";
 import motoYamaha from "@/assets/moto-yamaha.jpg";
+import { ModeToggle, modeStats } from "@/components/mode-toggle";
+import { useMode } from "@/context/mode-context";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
