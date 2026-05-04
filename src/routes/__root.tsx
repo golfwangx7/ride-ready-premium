@@ -3,6 +3,7 @@ import { ModeProvider } from "@/context/mode-context";
 import { RideProvider } from "@/context/ride-context";
 import { VehicleProvider } from "@/context/vehicle-context";
 import { ProfileProvider } from "@/context/profile-context";
+import { I18nProvider } from "@/context/i18n-context";
 
 import appCss from "../styles.css?url";
 
