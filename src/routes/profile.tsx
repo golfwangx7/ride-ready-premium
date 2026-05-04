@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { Settings, Plus, Bike, Car, MapPin, ChevronRight, Home, Newspaper, User, Star } from "lucide-react";
+import { useRef, useState } from "react";
+import { Settings, Plus, Bike, Car, MapPin, ChevronRight, Home, Newspaper, User, Star, Trash2, AlertTriangle } from "lucide-react";
 import avatar from "@/assets/avatar.jpg";
 import { ModeToggle, modeStats } from "@/components/mode-toggle";
 import { useMode } from "@/context/mode-context";
@@ -8,6 +8,7 @@ import { SocialLinks, SocialEditor, useSocials } from "@/components/socials";
 import { AvatarPicker, useAvatar } from "@/components/avatar-picker";
 import { Camera } from "lucide-react";
 import { useVehicles, formatDistance, type Vehicle } from "@/context/vehicle-context";
+import { useI18n as _useI18nUnused } from "@/context/i18n-context";
 import { useProfile } from "@/context/profile-context";
 import { AddVehicleDialog } from "@/components/add-vehicle-dialog";
 import { useI18n } from "@/context/i18n-context";
