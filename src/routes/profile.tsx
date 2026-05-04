@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { Settings, Plus, Bike, Car, MapPin, ChevronRight, Home, Newspaper, User, Star, Trash2, AlertTriangle } from "lucide-react";
+import { Settings, Plus, Bike, Car, MapPin, ChevronRight, Home, Newspaper, User, Star, Trash2, AlertTriangle, Lock, Sparkles } from "lucide-react";
+import { usePremium } from "@/context/premium-context";
 import avatar from "@/assets/avatar.jpg";
 import { ModeToggle, modeStats } from "@/components/mode-toggle";
 import { useMode } from "@/context/mode-context";
@@ -362,24 +363,7 @@ function VehicleCard({
         </div>
 
         {/* Center: hero vehicle image */}
-        <div className="relative mt-3 h-40 w-full overflow-hidden">
-          <img
-            src={vehicle.image}
-            alt={vehicle.name}
-            width={1024}
-            height={512}
-            loading="lazy"
-            draggable={false}
-            className={`relative h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.03] ${
-              vehicle.custom
-                ? "object-contain px-6 drop-shadow-[0_10px_14px_oklch(0_0_0/0.45)]"
-                : "object-cover"
-            }`}
-          />
-          {!vehicle.custom && (
-            <div className="absolute inset-0 bg-gradient-to-t from-card/80 via-card/10 to-transparent" />
-          )}
-        </div>
+        <VehicleHero vehicle={vehicle} />
 
         {/* Bottom: stats */}
         <div className="relative flex items-center justify-between border-t border-border/60 px-5 py-3.5">
@@ -391,6 +375,59 @@ function VehicleCard({
           <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
         </div>
       </Link>
+    </div>
+  );
+}
+
+function VehicleHero({ vehicle }: { vehicle: Vehicle }) {
+  const { isPremium, openPaywall } = usePremium();
+  // Free users with a stock (non-custom) vehicle see a locked, blurred preview
+  // that nudges them toward Premium.
+  const locked = !isPremium && !vehicle.custom;
+
+  return (
+    <div className="relative mt-3 h-40 w-full overflow-hidden">
+      <img
+        src={vehicle.image}
+        alt={vehicle.name}
+        width={1024}
+        height={512}
+        loading="lazy"
+        draggable={false}
+        className={`relative h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.03] ${
+          vehicle.custom
+            ? "object-contain px-6 drop-shadow-[0_10px_14px_oklch(0_0_0/0.45)]"
+            : "object-cover"
+        } ${locked ? "scale-105 blur-[10px]" : ""}`}
+      />
+      {!vehicle.custom && !locked && (
+        <div className="absolute inset-0 bg-gradient-to-t from-card/80 via-card/10 to-transparent" />
+      )}
+
+      {locked && (
+        <>
+          <div className="absolute inset-0 bg-gradient-to-t from-card/85 via-card/40 to-card/30" />
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              openPaywall();
+            }}
+            className="group/lock absolute inset-0 flex flex-col items-center justify-center gap-2 text-center transition-transform active:scale-[0.99]"
+          >
+            <span className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/30 bg-background/60 text-primary backdrop-blur-md transition-colors group-hover/lock:border-primary/60">
+              <Lock className="h-4 w-4" />
+            </span>
+            <span className="px-4 text-[12px] font-medium tracking-tight text-foreground/90">
+              Add your real vehicle
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-primary">
+              <Sparkles className="h-2.5 w-2.5" /> Premium
+            </span>
+          </button>
+        </>
+      )}
     </div>
   );
 }
