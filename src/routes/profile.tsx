@@ -174,14 +174,18 @@ function Stat({
 function VehicleCard({
   vehicle,
   delay,
+  active,
 }: {
-  vehicle: (typeof vehicles)[number];
+  vehicle: Vehicle;
   delay: number;
+  active?: boolean;
 }) {
   const Icon = vehicle.type === "car" ? Car : Bike;
   return (
-    <article
-      className="animate-fade-up group relative overflow-hidden rounded-2xl border border-border backdrop-blur-md transition-all hover:border-primary/40 hover:shadow-[var(--shadow-glow-sm)]"
+    <Link
+      to="/vehicle/$vehicleId"
+      params={{ vehicleId: vehicle.id }}
+      className="animate-fade-up group relative block overflow-hidden rounded-2xl border border-border backdrop-blur-md transition-all hover:border-primary/40 hover:shadow-[var(--shadow-glow-sm)]"
       style={{ background: "var(--gradient-surface)", animationDelay: `${delay}ms` }}
     >
       <div className="flex items-stretch">
@@ -201,6 +205,11 @@ function VehicleCard({
             <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-primary">
               <Icon className="h-3 w-3" />
               {vehicle.type === "car" ? "Car" : "Motorcycle"}
+              {active && (
+                <span className="ml-1 inline-flex items-center gap-0.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px]">
+                  <Star className="h-2.5 w-2.5 fill-primary" /> Active
+                </span>
+              )}
             </div>
             <h3 className="mt-1.5 font-display text-base font-semibold leading-tight">
               {vehicle.name}
@@ -210,13 +219,13 @@ function VehicleCard({
           <div className="flex items-center justify-between">
             <div className="flex gap-3 text-[11px] text-muted-foreground">
               <span><span className="text-foreground font-medium">{vehicle.rides}</span> rides</span>
-              <span><span className="text-foreground font-medium">{vehicle.distance}</span></span>
+              <span><span className="text-foreground font-medium">{formatDistance(vehicle.distance)}</span></span>
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
           </div>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
 
