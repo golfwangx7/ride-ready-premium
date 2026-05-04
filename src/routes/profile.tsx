@@ -118,7 +118,7 @@ function Profile() {
       <nav className="fixed bottom-5 left-1/2 z-20 -translate-x-1/2">
         <div className="flex items-center gap-1 rounded-full border border-border bg-card/70 px-2 py-2 backdrop-blur-2xl shadow-[var(--shadow-elegant)]">
           <NavBtn to="/" icon={<Home className="h-5 w-5" />} label="Home" />
-          <NavBtn to="/" icon={<Newspaper className="h-5 w-5" />} label="Feed" />
+          <NavBtn to="/feed" icon={<Newspaper className="h-5 w-5" />} label="Feed" />
           <NavBtn to="/profile" icon={<User className="h-5 w-5" />} label="Profile" active />
         </div>
       </nav>
