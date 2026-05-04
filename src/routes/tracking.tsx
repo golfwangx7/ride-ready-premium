@@ -9,7 +9,6 @@ export const Route = createFileRoute("/tracking")({
 });
 
 function Tracking() {
-  const navigate = useNavigate();
   const { status, stats, start, pause, resume, stop } = useRide();
 
   // Auto-start tracking when entering the screen if not already running.
