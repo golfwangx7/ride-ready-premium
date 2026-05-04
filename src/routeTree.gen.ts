@@ -16,6 +16,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as NameRideRouteImport } from './routes/name-ride'
 import { Route as FeedRouteImport } from './routes/feed'
+import { Route as EditProfileRouteImport } from './routes/edit-profile'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VehicleVehicleIdRouteImport } from './routes/vehicle.$vehicleId'
 
@@ -54,6 +55,11 @@ const FeedRoute = FeedRouteImport.update({
   path: '/feed',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EditProfileRoute = EditProfileRouteImport.update({
+  id: '/edit-profile',
+  path: '/edit-profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -67,6 +73,7 @@ const VehicleVehicleIdRoute = VehicleVehicleIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/edit-profile': typeof EditProfileRoute
   '/feed': typeof FeedRoute
   '/name-ride': typeof NameRideRoute
   '/profile': typeof ProfileRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/edit-profile': typeof EditProfileRoute
   '/feed': typeof FeedRoute
   '/name-ride': typeof NameRideRoute
   '/profile': typeof ProfileRoute
@@ -90,6 +98,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/edit-profile': typeof EditProfileRoute
   '/feed': typeof FeedRoute
   '/name-ride': typeof NameRideRoute
   '/profile': typeof ProfileRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/edit-profile'
     | '/feed'
     | '/name-ride'
     | '/profile'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/edit-profile'
     | '/feed'
     | '/name-ride'
     | '/profile'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/edit-profile'
     | '/feed'
     | '/name-ride'
     | '/profile'
@@ -137,6 +149,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EditProfileRoute: typeof EditProfileRoute
   FeedRoute: typeof FeedRoute
   NameRideRoute: typeof NameRideRoute
   ProfileRoute: typeof ProfileRoute
@@ -198,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/edit-profile': {
+      id: '/edit-profile'
+      path: '/edit-profile'
+      fullPath: '/edit-profile'
+      preLoaderRoute: typeof EditProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -217,6 +237,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EditProfileRoute: EditProfileRoute,
   FeedRoute: FeedRoute,
   NameRideRoute: NameRideRoute,
   ProfileRoute: ProfileRoute,

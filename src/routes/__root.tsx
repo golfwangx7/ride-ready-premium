@@ -2,6 +2,7 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/r
 import { ModeProvider } from "@/context/mode-context";
 import { RideProvider } from "@/context/ride-context";
 import { VehicleProvider } from "@/context/vehicle-context";
+import { ProfileProvider } from "@/context/profile-context";
 
 import appCss from "../styles.css?url";
 
@@ -78,7 +79,9 @@ function RootComponent() {
     <ModeProvider>
       <RideProvider>
         <VehicleProvider>
-          <Outlet />
+          <ProfileProvider>
+            <Outlet />
+          </ProfileProvider>
         </VehicleProvider>
       </RideProvider>
     </ModeProvider>
