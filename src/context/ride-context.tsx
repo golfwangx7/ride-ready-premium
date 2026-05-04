@@ -123,31 +123,71 @@ export function RideProvider({ children }: { children: ReactNode }) {
 
     if (typeof speed === "number" && speed >= 0) {
       setCurrentSpeed(speed);
-      setMaxSpeed((m) => (speed > m ? speed : m));
+      // Don't grow maxSpeed while auto-paused — that's a parked GPS jitter.
+      if (!autoPausedRef.current) {
+        setMaxSpeed((m) => (speed > m ? speed : m));
+      }
     }
 
     const last = lastKeptRef.current;
     let movedDistance = 0;
+    if (last) movedDistance = haversine(last, point);
+
+    const isStationary =
+      (typeof speed === "number" ? speed < STATIONARY_SPEED_MPS : false) &&
+      movedDistance < STATIONARY_DISTANCE_M;
+
+    // ---- Auto-pause / auto-resume ----
+    if (!autoPausedRef.current) {
+      if (isStationary) {
+        if (stationarySinceRef.current == null) {
+          stationarySinceRef.current = now;
+        } else if (now - stationarySinceRef.current >= AUTO_PAUSE_AFTER_MS) {
+          autoPausedRef.current = true;
+          setAutoPaused(true);
+          pauseAnchorRef.current = point;
+          stopTick(); // freeze duration counter while parked
+        }
+      } else {
+        stationarySinceRef.current = null;
+      }
+    } else {
+      // Currently auto-paused: look for sustained movement to resume.
+      const anchor = pauseAnchorRef.current;
+      const movedFromAnchor = anchor ? haversine(anchor, point) : 0;
+      const movingFast = typeof speed === "number" && speed >= AUTO_RESUME_SPEED_MPS;
+      if (movingFast || movedFromAnchor >= AUTO_RESUME_DISTANCE_M) {
+        autoPausedRef.current = false;
+        setAutoPaused(false);
+        stationarySinceRef.current = null;
+        pauseAnchorRef.current = null;
+        // Break continuity so the parked gap doesn't count as travel.
+        lastKeptRef.current = point;
+        startTickRef.current();
+        // Skip recording this transition fix as a distance delta.
+        stationaryRef.current = false;
+        setPoints((p) => [...p, point]);
+        return;
+      }
+      // Still parked — don't accumulate distance or write points.
+      stationaryRef.current = true;
+      return;
+    }
+
+    stationaryRef.current = isStationary;
+
     if (last) {
       const dt = now - last.t;
-      movedDistance = haversine(last, point);
       // Throttle: keep point only if enough time AND/OR enough distance passed.
       if (dt < MIN_SAMPLE_INTERVAL_MS && movedDistance < MIN_SAMPLE_DISTANCE_M) {
-        stationaryRef.current =
-          (typeof speed === "number" ? speed < STATIONARY_SPEED_MPS : true) &&
-          movedDistance < STATIONARY_DISTANCE_M;
         return;
       }
       setDistance((d) => d + movedDistance);
     }
 
-    stationaryRef.current =
-      (typeof speed === "number" ? speed < STATIONARY_SPEED_MPS : false) &&
-      movedDistance < STATIONARY_DISTANCE_M;
-
     lastKeptRef.current = point;
     setPoints((p) => [...p, point]);
-  }, []);
+  }, [stopTick]);
 
   // Adaptive polling: faster while moving, slower while stationary.
   // Using one-shot getCurrentPosition + setTimeout lets the OS power down the
