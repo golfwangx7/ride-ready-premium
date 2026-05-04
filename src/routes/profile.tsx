@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { Settings, Plus, Bike, Car, MapPin, ChevronRight, Home, Newspaper, User } from "lucide-react";
 import avatar from "@/assets/avatar.jpg";
 import carBmw from "@/assets/car-bmw.jpg";
 import motoYamaha from "@/assets/moto-yamaha.jpg";
 import { ModeToggle, modeStats } from "@/components/mode-toggle";
 import { useMode } from "@/context/mode-context";
+import { SocialLinks, SocialEditor, useSocials } from "@/components/socials";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
@@ -32,6 +34,8 @@ const vehicles = [
 function Profile() {
   const { mode } = useMode();
   const stats = modeStats(mode);
+  const { socials, setSocials } = useSocials();
+  const [editing, setEditing] = useState(false);
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
@@ -71,6 +75,7 @@ function Profile() {
             <MapPin className="h-3 w-3" />
             San Francisco · @alex.rides
           </p>
+          <SocialLinks socials={socials} onEdit={() => setEditing(true)} />
         </section>
 
         {/* Mode toggle */}
@@ -132,6 +137,13 @@ function Profile() {
           <NavBtn to="/profile" icon={<User className="h-5 w-5" />} label="Profile" active />
         </div>
       </nav>
+
+      <SocialEditor
+        open={editing}
+        initial={socials}
+        onClose={() => setEditing(false)}
+        onSave={setSocials}
+      />
     </div>
   );
 }
