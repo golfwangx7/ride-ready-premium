@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Sparkles, Check, X, Crown } from "lucide-react";
+import { Sparkles, Check, X, Crown, BarChart3, Palette, Car, Map } from "lucide-react";
 import { usePremium } from "@/context/premium-context";
+import heroCar from "@/assets/premium-hero-car.png";
 
 type Plan = "monthly" | "yearly";
 
@@ -23,11 +24,11 @@ export function Paywall() {
         onClick={closePaywall}
         className="absolute inset-0 animate-fade-in bg-background/85 backdrop-blur-md"
       />
-      <div className="animate-fade-up dark relative flex max-h-[94vh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl border border-primary/20 bg-card/95 backdrop-blur-2xl sm:max-h-[90vh] sm:rounded-3xl">
+      <div className="animate-fade-up dark relative flex max-h-[96vh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl border border-primary/15 bg-card/95 backdrop-blur-2xl sm:max-h-[92vh] sm:rounded-3xl">
         {/* Ambient glow */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-32 left-1/2 h-72 w-[120%] -translate-x-1/2 rounded-full opacity-40 blur-3xl"
+          className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[140%] -translate-x-1/2 rounded-full opacity-50 blur-3xl"
           style={{ background: "var(--gradient-primary)" }}
         />
 
@@ -41,33 +42,70 @@ export function Paywall() {
           <X className="h-3.5 w-3.5" />
         </button>
 
-        <div className="relative flex-1 overflow-y-auto px-6 pb-2 pt-9 sm:px-8">
-          <div className="mx-auto mb-6 h-1 w-10 rounded-full bg-border sm:hidden" />
+        <div className="relative flex-1 overflow-y-auto px-6 pb-3 pt-9 sm:px-8">
+          <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-border sm:hidden" />
 
           {/* Header */}
           <div className="flex flex-col items-center text-center">
-            <div className="relative">
-              <div
-                className="absolute inset-0 -m-3 rounded-2xl opacity-70 blur-2xl"
-                style={{ background: "var(--gradient-primary)" }}
-              />
-              <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/40 bg-card">
-                <Crown className="h-5 w-5 text-primary" strokeWidth={1.5} />
-              </div>
-            </div>
-            <p className="mt-4 text-[10px] font-medium uppercase tracking-[0.32em] text-primary">
+            <p className="inline-flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.32em] text-primary">
+              <Crown className="h-3 w-3" strokeWidth={2} />
               Rydr Premium
             </p>
-            <h2 className="mt-2 font-display text-[28px] font-medium leading-[1.1] tracking-tight">
+            <h2 className="mt-3 font-display text-[30px] font-medium leading-[1.05] tracking-tight">
               Upgrade to Rydr Premium
             </h2>
-            <p className="mt-2.5 max-w-[280px] text-sm text-muted-foreground">
-              {paywallReason ?? "Pick a plan and unlock the full experience."}
+            <p className="mt-2 max-w-[300px] text-sm text-muted-foreground">
+              Make every ride yours.
             </p>
+            {paywallReason && (
+              <p className="mt-3 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
+                {paywallReason}
+              </p>
+            )}
           </div>
 
+          {/* Hero feature */}
+          <div className="relative mt-7 overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/[0.08] to-background/60 px-5 pt-5">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 -top-10 h-40 opacity-60 blur-2xl"
+              style={{ background: "var(--gradient-primary)" }}
+            />
+            <div className="relative flex flex-col">
+              <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/30 bg-background/40 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-primary">
+                <Sparkles className="h-3 w-3" />
+                Featured
+              </span>
+              <h3 className="mt-3 font-display text-[17px] font-medium leading-snug tracking-tight">
+                Add your real vehicle with AI-enhanced visuals
+              </h3>
+              <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+                Turn a quick photo into a polished, studio-grade portrait of your ride.
+              </p>
+              <div className="relative mt-3 -mb-2 flex justify-center">
+                <div
+                  aria-hidden
+                  className="absolute bottom-2 left-1/2 h-6 w-2/3 -translate-x-1/2 rounded-[50%] bg-black/60 blur-md"
+                />
+                <img
+                  src={heroCar}
+                  alt="AI-enhanced vehicle preview"
+                  className="relative h-28 w-auto object-contain drop-shadow-[0_18px_28px_rgba(0,0,0,0.55)]"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Feature list */}
+          <ul className="mt-6 grid grid-cols-2 gap-2.5">
+            <Feature icon={<BarChart3 className="h-3.5 w-3.5" />} text="Advanced ride stats" />
+            <Feature icon={<Palette className="h-3.5 w-3.5" />} text="Custom share styles" />
+            <Feature icon={<Car className="h-3.5 w-3.5" />} text="Multiple vehicles" />
+            <Feature icon={<Map className="h-3.5 w-3.5" />} text="Premium routes" />
+          </ul>
+
           {/* Plans */}
-          <div className="mt-8 space-y-3">
+          <div className="mt-7 space-y-3">
             <PlanRow
               active={plan === "yearly"}
               onClick={() => setPlan("yearly")}
@@ -76,7 +114,7 @@ export function Paywall() {
               suffix="per year"
               equivalent="≈ $2.50 / month"
               badge="Best Value"
-              note="Save 40% compared to monthly"
+              note="Save 40%"
               featured
             />
             <PlanRow
@@ -89,7 +127,7 @@ export function Paywall() {
           </div>
 
           {/* Tiny perks reassurance */}
-          <ul className="mt-7 grid grid-cols-2 gap-x-4 gap-y-2 text-[12px] text-muted-foreground">
+          <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-2 text-[12px] text-muted-foreground">
             <Perk text="Cancel anytime" />
             <Perk text="Instant access" />
             <Perk text="All future updates" />
@@ -116,6 +154,17 @@ export function Paywall() {
         </div>
       </div>
     </div>
+  );
+}
+
+function Feature({ icon, text }: { icon: React.ReactNode; text: string }) {
+  return (
+    <li className="flex items-center gap-2 rounded-xl border border-border/70 bg-background/40 px-3 py-2.5 text-[12px]">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-primary/10 text-primary">
+        {icon}
+      </span>
+      <span className="leading-tight">{text}</span>
+    </li>
   );
 }
 
