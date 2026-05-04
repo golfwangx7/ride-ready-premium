@@ -7,6 +7,7 @@ import feed3 from "@/assets/feed-3.jpg";
 import avatar from "@/assets/avatar.jpg";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useMode } from "@/context/mode-context";
+import { useI18n } from "@/context/i18n-context";
 
 export const Route = createFileRoute("/feed")({
   component: Feed,
