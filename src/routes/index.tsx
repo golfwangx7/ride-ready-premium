@@ -133,9 +133,9 @@ function Index() {
       {/* Bottom nav */}
       <nav className="fixed bottom-5 left-1/2 z-20 -translate-x-1/2">
         <div className="flex items-center gap-1 rounded-full border border-border bg-card/70 px-2 py-2 backdrop-blur-2xl shadow-[var(--shadow-elegant)]">
-          <NavBtn icon={<Home className="h-5 w-5" />} label="Home" active />
-          <NavBtn icon={<Newspaper className="h-5 w-5" />} label="Feed" />
-          <NavBtn icon={<User className="h-5 w-5" />} label="Profile" />
+          <NavBtn to="/" icon={<Home className="h-5 w-5" />} label="Home" active />
+          <NavBtn to="/" icon={<Newspaper className="h-5 w-5" />} label="Feed" />
+          <NavBtn to="/profile" icon={<User className="h-5 w-5" />} label="Profile" />
         </div>
       </nav>
     </div>
@@ -191,17 +191,19 @@ function Stat({
 }
 
 function NavBtn({
+  to,
   icon,
   label,
   active,
 }: {
+  to: string;
   icon: React.ReactNode;
   label: string;
   active?: boolean;
 }) {
   return (
-    <button
-      type="button"
+    <Link
+      to={to}
       className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition-all duration-300 ${
         active
           ? "bg-primary/15 text-primary shadow-[inset_0_0_0_1px_oklch(0.82_0.16_200/0.3)]"
@@ -210,6 +212,6 @@ function NavBtn({
     >
       {icon}
       {active && <span>{label}</span>}
-    </button>
+    </Link>
   );
 }
