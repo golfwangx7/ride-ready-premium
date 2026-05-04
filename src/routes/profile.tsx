@@ -8,6 +8,7 @@ import { SocialLinks, SocialEditor, useSocials } from "@/components/socials";
 import { AvatarPicker, useAvatar } from "@/components/avatar-picker";
 import { Camera } from "lucide-react";
 import { useVehicles, formatDistance, type Vehicle } from "@/context/vehicle-context";
+import { useProfile } from "@/context/profile-context";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
@@ -21,6 +22,7 @@ function Profile() {
   const { src: avatarSrc, setSrc: setAvatarSrc } = useAvatar(avatar);
   const [pickingAvatar, setPickingAvatar] = useState(false);
   const { vehicles, activeId } = useVehicles();
+  const { profile } = useProfile();
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
@@ -57,7 +59,7 @@ function Profile() {
             />
             <img
               src={avatarSrc}
-              alt="Alex Carter"
+              alt={profile.name}
               width={512}
               height={512}
               className="relative h-24 w-24 rounded-full border-2 border-background object-cover transition-transform group-hover:scale-[1.02]"
@@ -66,10 +68,10 @@ function Profile() {
               <Camera className="h-3.5 w-3.5" />
             </span>
           </button>
-          <h1 className="mt-5 font-display text-2xl font-medium tracking-tight">Alex Carter</h1>
+          <h1 className="mt-5 font-display text-2xl font-medium tracking-tight">{profile.name}</h1>
           <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
             <MapPin className="h-3 w-3" />
-            San Francisco · @alex.rides
+            {profile.location} · @{profile.username}
           </p>
           <SocialLinks socials={socials} onEdit={() => setEditing(true)} />
         </section>
