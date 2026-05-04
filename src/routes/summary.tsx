@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Share2, Bookmark, ArrowLeft, Gauge, Route as RouteIcon, Clock, Wind, Flag, Car, Bike } from "lucide-react";
+import { Share2, Bookmark, ArrowLeft, Gauge, Route as RouteIcon, Clock, Wind, Flag, Car, Bike, Sparkles, ChevronRight } from "lucide-react";
 import mapSummary from "@/assets/map-summary.jpg";
 import { useRide } from "@/context/ride-context";
 import { useVehicles } from "@/context/vehicle-context";
+import { usePremium } from "@/context/premium-context";
 
 export const Route = createFileRoute("/summary")({
   component: Summary,
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/summary")({
 function Summary() {
   const { name } = useRide();
   const { vehicles, activeId } = useVehicles();
+  const { isPremium, openPaywall } = usePremium();
   const active = vehicles.find((v) => v.id === activeId) ?? vehicles[0];
   const [first, ...rest] = name.split(" ");
   return (
@@ -112,6 +114,40 @@ function Summary() {
                 {active.type === "car" ? "Car" : "Moto"}
               </span>
             </Link>
+          </section>
+        )}
+
+        {/* Premium upsell — appears only for free users, after the rewarding summary */}
+        {!isPremium && (
+          <section className="animate-fade-up mt-5" style={{ animationDelay: "440ms" }}>
+            <button
+              type="button"
+              onClick={openPaywall}
+              className="group relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-primary/25 px-4 py-3.5 text-left backdrop-blur-md transition-[border-color,transform] hover:border-primary/50 active:scale-[0.99]"
+              style={{ background: "var(--gradient-surface)" }}
+            >
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full opacity-30 blur-3xl"
+                style={{ background: "var(--gradient-primary)" }}
+              />
+              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary">
+                <Sparkles className="h-4 w-4" />
+              </span>
+              <div className="relative min-w-0 flex-1">
+                <p className="text-[10px] uppercase tracking-[0.22em] text-primary">Rydr Premium</p>
+                <p className="mt-0.5 truncate text-[13px] font-medium">
+                  Unlock advanced ride insights with Premium
+                </p>
+              </div>
+              <span
+                className="relative inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-semibold text-primary-foreground"
+                style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow-sm)" }}
+              >
+                Upgrade
+                <ChevronRight className="h-3 w-3" />
+              </span>
+            </button>
           </section>
         )}
       </main>
