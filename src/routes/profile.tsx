@@ -34,6 +34,8 @@ const vehicles = [
 function Profile() {
   const { mode } = useMode();
   const stats = modeStats(mode);
+  const { socials, setSocials } = useSocials();
+  const [editing, setEditing] = useState(false);
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
