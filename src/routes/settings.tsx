@@ -278,6 +278,9 @@ function SupportSheet({ open, onClose }: { open: boolean; onClose: () => void })
           </button>
         </div>
       </div>
+    </div>
+  );
+}
 
 function Group({ title, delay, children }: { title: string; delay: number; children: React.ReactNode }) {
   return (
