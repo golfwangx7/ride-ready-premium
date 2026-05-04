@@ -4,6 +4,7 @@ import { RideProvider } from "@/context/ride-context";
 import { VehicleProvider } from "@/context/vehicle-context";
 import { ProfileProvider } from "@/context/profile-context";
 import { I18nProvider } from "@/context/i18n-context";
+import { PremiumProvider } from "@/context/premium-context";
 
 import appCss from "../styles.css?url";
 
@@ -86,7 +87,9 @@ function RootComponent() {
         <RideProvider>
           <VehicleProvider>
             <ProfileProvider>
-              <Outlet />
+              <PremiumProvider>
+                <Outlet />
+              </PremiumProvider>
             </ProfileProvider>
           </VehicleProvider>
         </RideProvider>
