@@ -17,29 +17,27 @@ import {
 } from "lucide-react";
 import { useSocials, SocialEditor } from "@/components/socials";
 import { useProfile } from "@/context/profile-context";
+import { useI18n, LANG_OPTIONS, type Lang } from "@/context/i18n-context";
 
 export const Route = createFileRoute("/settings")({
   component: Settings,
 });
 
 const UNITS_KEY = "ride.units";
-const LANG_KEY = "ride.lang";
 
 function Settings() {
   const navigate = useNavigate();
   const { profile } = useProfile();
   const { socials, setSocials } = useSocials();
+  const { t, lang, setLang } = useI18n();
   const [editingSocials, setEditingSocials] = useState(false);
   const [units, setUnits] = useState<"km" | "mi">("km");
-  const [lang, setLang] = useState("English");
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     try {
       const u = localStorage.getItem(UNITS_KEY);
       if (u === "km" || u === "mi") setUnits(u);
-      const l = localStorage.getItem(LANG_KEY);
-      if (l) setLang(l);
     } catch {
       // ignore
     }
@@ -48,10 +46,6 @@ function Settings() {
   const saveUnits = (u: "km" | "mi") => {
     setUnits(u);
     try { localStorage.setItem(UNITS_KEY, u); } catch { /* */ }
-  };
-  const saveLang = (l: string) => {
-    setLang(l);
-    try { localStorage.setItem(LANG_KEY, l); } catch { /* */ }
   };
 
   const linkedCount = (socials.instagram ? 1 : 0) + (socials.tiktok ? 1 : 0);
