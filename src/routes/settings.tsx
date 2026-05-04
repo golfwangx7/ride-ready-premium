@@ -195,11 +195,45 @@ function Settings() {
   );
 }
 
+const APP_VERSION = "1.0.0";
+
+function getDeviceInfo() {
+  if (typeof navigator === "undefined") {
+    return { platform: "unknown", language: "unknown", userAgent: "unknown", screen: "unknown" };
+  }
+  const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
+  const platform = nav.userAgentData?.platform || nav.platform || "unknown";
+  const screen =
+    typeof window !== "undefined" && window.screen
+      ? `${window.screen.width}x${window.screen.height}`
+      : "unknown";
+  return {
+    platform,
+    language: navigator.language || "unknown",
+    userAgent: navigator.userAgent || "unknown",
+    screen,
+  };
+}
+
 function SupportSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [copied, setCopied] = useState(false);
   const email = "rydr.app@outlook.com";
   const subject = "Rydr Support Request";
-  const body = "Hi, I need help with...";
+
+  const info = getDeviceInfo();
+  const body = [
+    "Hi, I need help with...",
+    "",
+    "",
+    "— — — — — — — — — — — —",
+    "Diagnostics (please keep)",
+    `App version: ${APP_VERSION}`,
+    `Platform: ${info.platform}`,
+    `Language: ${info.language}`,
+    `Screen: ${info.screen}`,
+    `User agent: ${info.userAgent}`,
+  ].join("\n");
+
   const mailto = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
   if (!open) return null;
@@ -248,6 +282,9 @@ function SupportSheet({ open, onClose }: { open: boolean; onClose: () => void })
         <div className="mt-5 rounded-2xl border border-border bg-background/40 p-4">
           <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Email</p>
           <p className="mt-1 break-all font-mono text-sm text-foreground">{email}</p>
+          <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+            App version & device info are auto-attached to help us diagnose faster.
+          </p>
         </div>
 
         <div className="mt-5 space-y-3">
