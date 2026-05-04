@@ -1,6 +1,7 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { ModeProvider } from "@/context/mode-context";
 import { RideProvider } from "@/context/ride-context";
+import { VehicleProvider } from "@/context/vehicle-context";
 
 import appCss from "../styles.css?url";
 
@@ -76,7 +77,9 @@ function RootComponent() {
   return (
     <ModeProvider>
       <RideProvider>
-        <Outlet />
+        <VehicleProvider>
+          <Outlet />
+        </VehicleProvider>
       </RideProvider>
     </ModeProvider>
   );
