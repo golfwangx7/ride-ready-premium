@@ -4,8 +4,6 @@ import { RideProvider } from "@/context/ride-context";
 import { VehicleProvider } from "@/context/vehicle-context";
 import { ProfileProvider } from "@/context/profile-context";
 import { I18nProvider } from "@/context/i18n-context";
-import { PremiumProvider } from "@/context/premium-context";
-import { Paywall } from "@/components/paywall";
 
 import appCss from "../styles.css?url";
 
@@ -36,14 +34,18 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Rydr — Ready for your next ride" },
+      { title: "Apex — Ready for your next ride" },
       { name: "description", content: "Premium ride tracking for cars and motorcycles. Track distance, speed, and routes in style." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Apex — Ready for your next ride" },
+      { property: "og:description", content: "Premium ride tracking for cars and motorcycles. Track distance, speed, and routes in style." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Apex — Ready for your next ride" },
+      { name: "twitter:description", content: "Premium ride tracking for cars and motorcycles. Track distance, speed, and routes in style." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a5782cbc-6de3-4754-88ed-2f5770021d6f/id-preview-98a5d348--de002b52-7cbe-4df3-9946-6ff5bed4d0eb.lovable.app-1777914415230.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a5782cbc-6de3-4754-88ed-2f5770021d6f/id-preview-98a5d348--de002b52-7cbe-4df3-9946-6ff5bed4d0eb.lovable.app-1777914415230.png" },
     ],
     links: [
       {
@@ -80,18 +82,15 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <I18nProvider>
-      <PremiumProvider>
-        <ModeProvider>
-          <RideProvider>
-            <VehicleProvider>
-              <ProfileProvider>
-                <Outlet />
-                <Paywall />
-              </ProfileProvider>
-            </VehicleProvider>
-          </RideProvider>
-        </ModeProvider>
-      </PremiumProvider>
+      <ModeProvider>
+        <RideProvider>
+          <VehicleProvider>
+            <ProfileProvider>
+              <Outlet />
+            </ProfileProvider>
+          </VehicleProvider>
+        </RideProvider>
+      </ModeProvider>
     </I18nProvider>
   );
 }
