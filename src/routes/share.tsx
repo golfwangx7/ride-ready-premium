@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ArrowLeft, Download, Share2, MapPin, Check, Loader2 } from "lucide-react";
 import mapSummary from "@/assets/map-summary.jpg";
 import { useMode } from "@/context/mode-context";
+import { useRide } from "@/context/ride-context";
 
 export const Route = createFileRoute("/share")({
   component: SharePage,
@@ -12,6 +13,8 @@ type Toast = { kind: "saved" | "shared"; id: number } | null;
 
 function SharePage() {
   const { mode } = useMode();
+  const { name } = useRide();
+  const [first, ...rest] = name.split(" ");
   const vehicle = mode === "moto" ? "Yamaha R1" : "BMW M4 Competition";
   const [toast, setToast] = useState<Toast>(null);
   const [busy, setBusy] = useState<"save" | "share" | null>(null);
@@ -115,8 +118,8 @@ function SharePage() {
                   Ride Recap
                 </p>
               </div>
-              <h1 className="mt-4 font-display text-[2.4rem] font-light leading-[1.05] tracking-tight">
-                Sunday <span className="font-medium italic text-primary">Ride</span>
+              <h1 key={name} className="animate-fade-up mt-4 font-display text-[2.4rem] font-light leading-[1.05] tracking-tight">
+                {first} {rest.length > 0 && <span className="font-medium italic text-primary">{rest.join(" ")}</span>}
               </h1>
               <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
                 Sun · 04 May · 09:14 AM
