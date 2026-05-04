@@ -310,7 +310,7 @@ function VehicleCard({
 
   return (
     <div
-      className="animate-fade-up relative overflow-hidden rounded-2xl"
+      className="animate-fade-up relative overflow-hidden rounded-3xl"
       style={{ animationDelay: `${delay}ms` }}
     >
       {/* Delete action behind card */}
@@ -335,57 +335,98 @@ function VehicleCard({
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         onClick={handleClick}
-        className="group relative block touch-pan-y select-none overflow-hidden rounded-2xl border border-border backdrop-blur-md transition-[border-color,box-shadow] hover:border-primary/40 hover:shadow-[var(--shadow-glow-sm)]"
+        className="group relative block touch-pan-y select-none overflow-hidden rounded-3xl border border-border backdrop-blur-md transition-[border-color,box-shadow,transform] hover:border-primary/40 hover:shadow-[var(--shadow-glow-sm)]"
         style={{
-          background: "var(--gradient-surface)",
+          background:
+            "radial-gradient(120% 80% at 50% 0%, oklch(0.82 0.16 200 / 0.10), transparent 60%), var(--gradient-surface)",
           transform: `translateX(${offset}px)`,
           transition: dragging.current ? "none" : "transform 250ms cubic-bezier(0.22, 1, 0.36, 1)",
         }}
       >
-        <div className="flex items-stretch">
+        {/* Subtle grid texture */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.05]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)",
+            backgroundSize: "26px 26px",
+            color: "oklch(0.82 0.16 200)",
+            maskImage: "radial-gradient(ellipse at 50% 30%, black 35%, transparent 75%)",
+          }}
+        />
+
+        {/* Top: name + type/active */}
+        <div className="relative flex items-start justify-between px-5 pt-5">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-primary">
+              <Icon className="h-3 w-3" />
+              {vehicle.type === "car" ? "Car" : "Motorcycle"}
+            </div>
+            <h3 className="mt-1.5 truncate font-display text-xl font-medium tracking-tight">
+              {vehicle.name}
+            </h3>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">{vehicle.sub}</p>
+          </div>
+          {active && (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-primary/30 bg-primary/15 px-2 py-1 text-[9px] font-semibold uppercase tracking-wider text-primary">
+              <Star className="h-2.5 w-2.5 fill-primary" /> Active
+            </span>
+          )}
+        </div>
+
+        {/* Center: hero vehicle image */}
+        <div className="relative mt-2 h-40 w-full overflow-hidden">
+          {/* Glow halo */}
           <div
-            className="relative h-28 w-36 shrink-0 overflow-hidden"
-            style={vehicle.custom ? { background: "var(--gradient-surface)" } : undefined}
-          >
-            <img
-              src={vehicle.image}
-              alt={vehicle.name}
-              width={1024}
-              height={512}
-              loading="lazy"
-              draggable={false}
-              className={`h-full w-full transition-transform duration-700 group-hover:scale-110 ${
-                vehicle.custom ? "object-contain p-2" : "object-cover"
-              }`}
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/80" />
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 h-44 w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-50 blur-3xl"
+            style={{ background: "var(--gradient-primary)" }}
+          />
+          {/* Floor reflection */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-10 bottom-3 h-3 rounded-[50%] bg-primary/40 blur-md"
+          />
+          <img
+            src={vehicle.image}
+            alt={vehicle.name}
+            width={1024}
+            height={512}
+            loading="lazy"
+            draggable={false}
+            className={`relative h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.06] ${
+              vehicle.custom
+                ? "object-contain p-3 drop-shadow-[0_18px_22px_oklch(0_0_0/0.55)]"
+                : "object-cover"
+            }`}
+          />
+          {!vehicle.custom && (
+            <div className="absolute inset-0 bg-gradient-to-t from-card/85 via-card/10 to-transparent" />
+          )}
+        </div>
+
+        {/* Bottom: stats */}
+        <div className="relative flex items-center justify-between border-t border-border/60 px-5 py-3.5">
+          <div className="flex items-center gap-5">
+            <Stat label="Distance" value={formatDistance(vehicle.distance)} />
+            <span className="h-6 w-px bg-border" aria-hidden />
+            <Stat label="Rides" value={String(vehicle.rides)} />
           </div>
-          <div className="flex flex-1 flex-col justify-between p-4">
-            <div>
-              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-primary">
-                <Icon className="h-3 w-3" />
-                {vehicle.type === "car" ? "Car" : "Motorcycle"}
-                {active && (
-                  <span className="ml-1 inline-flex items-center gap-0.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px]">
-                    <Star className="h-2.5 w-2.5 fill-primary" /> Active
-                  </span>
-                )}
-              </div>
-              <h3 className="mt-1.5 font-display text-base font-semibold leading-tight">
-                {vehicle.name}
-              </h3>
-              <p className="text-[11px] text-muted-foreground">{vehicle.sub}</p>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex gap-3 text-[11px] text-muted-foreground">
-                <span><span className="text-foreground font-medium">{vehicle.rides}</span> rides</span>
-                <span><span className="text-foreground font-medium">{formatDistance(vehicle.distance)}</span></span>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
-            </div>
-          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
         </div>
       </Link>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-col leading-none">
+      <span className="font-display text-[15px] font-medium tabular-nums">{value}</span>
+      <span className="mt-1 text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
+        {label}
+      </span>
     </div>
   );
 }
