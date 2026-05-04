@@ -112,8 +112,6 @@ function Tracking() {
           </Link>
         </div>
       </footer>
-      {/* navigate is unused but kept for future programmatic redirects */}
-      <span className="hidden">{typeof navigate}</span>
     </div>
   );
 }
