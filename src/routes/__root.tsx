@@ -3,6 +3,7 @@ import { ModeProvider } from "@/context/mode-context";
 import { RideProvider } from "@/context/ride-context";
 import { VehicleProvider } from "@/context/vehicle-context";
 import { ProfileProvider } from "@/context/profile-context";
+import { I18nProvider } from "@/context/i18n-context";
 
 import appCss from "../styles.css?url";
 
@@ -76,14 +77,16 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   return (
-    <ModeProvider>
-      <RideProvider>
-        <VehicleProvider>
-          <ProfileProvider>
-            <Outlet />
-          </ProfileProvider>
-        </VehicleProvider>
-      </RideProvider>
-    </ModeProvider>
+    <I18nProvider>
+      <ModeProvider>
+        <RideProvider>
+          <VehicleProvider>
+            <ProfileProvider>
+              <Outlet />
+            </ProfileProvider>
+          </VehicleProvider>
+        </RideProvider>
+      </ModeProvider>
+    </I18nProvider>
   );
 }

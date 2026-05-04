@@ -17,29 +17,27 @@ import {
 } from "lucide-react";
 import { useSocials, SocialEditor } from "@/components/socials";
 import { useProfile } from "@/context/profile-context";
+import { useI18n, LANG_OPTIONS, type Lang } from "@/context/i18n-context";
 
 export const Route = createFileRoute("/settings")({
   component: Settings,
 });
 
 const UNITS_KEY = "ride.units";
-const LANG_KEY = "ride.lang";
 
 function Settings() {
   const navigate = useNavigate();
   const { profile } = useProfile();
   const { socials, setSocials } = useSocials();
+  const { t, lang, setLang } = useI18n();
   const [editingSocials, setEditingSocials] = useState(false);
   const [units, setUnits] = useState<"km" | "mi">("km");
-  const [lang, setLang] = useState("English");
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     try {
       const u = localStorage.getItem(UNITS_KEY);
       if (u === "km" || u === "mi") setUnits(u);
-      const l = localStorage.getItem(LANG_KEY);
-      if (l) setLang(l);
     } catch {
       // ignore
     }
@@ -48,10 +46,6 @@ function Settings() {
   const saveUnits = (u: "km" | "mi") => {
     setUnits(u);
     try { localStorage.setItem(UNITS_KEY, u); } catch { /* */ }
-  };
-  const saveLang = (l: string) => {
-    setLang(l);
-    try { localStorage.setItem(LANG_KEY, l); } catch { /* */ }
   };
 
   const linkedCount = (socials.instagram ? 1 : 0) + (socials.tiktok ? 1 : 0);
@@ -72,38 +66,39 @@ function Settings() {
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
-          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Settings</p>
+          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">{t("settings.title")}</p>
           <div className="h-10 w-10" />
         </header>
 
         <h1 className="animate-fade-up mt-6 font-display text-3xl font-light tracking-tight">
-          <span className="font-medium italic text-primary">Settings</span>
+          <span className="font-medium italic text-primary">{t("settings.title")}</span>
         </h1>
 
         {/* Account */}
-        <Group title="Account" delay={80}>
-          <Row icon={<User className="h-4 w-4" />} label="Edit profile" hint={profile.name} onClick={() => navigate({ to: "/edit-profile" })} />
-          <Row icon={<Camera className="h-4 w-4" />} label="Change profile picture" />
+        <Group title={t("settings.account")} delay={80}>
+          <Row icon={<User className="h-4 w-4" />} label={t("settings.edit_profile")} hint={profile.name} onClick={() => navigate({ to: "/edit-profile" })} />
+          <Row icon={<Camera className="h-4 w-4" />} label={t("settings.change_picture")} />
           <Row
             icon={<AtSign className="h-4 w-4" />}
-            label="Connected socials"
-            hint={linkedCount > 0 ? `${linkedCount} linked` : "None"}
+            label={t("settings.connected_socials")}
+            hint={linkedCount > 0 ? t("settings.linked_count", { n: linkedCount }) : t("settings.none")}
             onClick={() => setEditingSocials(true)}
           />
         </Group>
 
         {/* App */}
-        <Group title="App" delay={140}>
+        <Group title={t("settings.app")} delay={140}>
           <SegmentRow
             icon={<Globe className="h-4 w-4" />}
-            label="Language"
-            options={["English", "Español", "Français"]}
+            label={t("settings.language")}
+            options={LANG_OPTIONS.map((o) => o.code)}
+            optionLabels={Object.fromEntries(LANG_OPTIONS.map((o) => [o.code, o.label]))}
             value={lang}
-            onChange={saveLang}
+            onChange={(v) => setLang(v as Lang)}
           />
           <SegmentRow
             icon={<Gauge className="h-4 w-4" />}
-            label="Units"
+            label={t("settings.units")}
             options={["km", "mi"]}
             optionLabels={{ km: "km/h", mi: "mph" }}
             value={units}
@@ -112,25 +107,25 @@ function Settings() {
         </Group>
 
         {/* Subscription */}
-        <Group title="Subscription" delay={200}>
+        <Group title={t("settings.subscription")} delay={200}>
           <Row
             icon={<Crown className="h-4 w-4 text-primary" />}
-            label="Manage subscription"
+            label={t("settings.manage_subscription")}
             hint="Apex Pro"
             highlight
           />
         </Group>
 
         {/* Legal */}
-        <Group title="Legal" delay={260}>
-          <Row icon={<Shield className="h-4 w-4" />} label="Privacy policy" />
-          <Row icon={<FileText className="h-4 w-4" />} label="Terms of service" />
+        <Group title={t("settings.legal")} delay={260}>
+          <Row icon={<Shield className="h-4 w-4" />} label={t("settings.privacy")} />
+          <Row icon={<FileText className="h-4 w-4" />} label={t("settings.terms")} />
         </Group>
 
         {/* Danger zone */}
         <section className="animate-fade-up mt-8" style={{ animationDelay: "320ms" }}>
           <p className="mb-3 px-1 text-[10px] uppercase tracking-[0.25em] text-destructive/80">
-            Danger Zone
+            {t("settings.danger")}
           </p>
           <div className="overflow-hidden rounded-2xl border border-destructive/20 bg-destructive/5 backdrop-blur-md">
             <button
@@ -141,9 +136,9 @@ function Settings() {
                 <RotateCcw className="h-4 w-4" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium">Reset data</p>
+                <p className="text-sm font-medium">{t("settings.reset_data")}</p>
                 <p className="text-[11px] text-muted-foreground">
-                  Clears rides, settings, and cached preferences
+                  {t("settings.reset_data_desc")}
                 </p>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -158,9 +153,9 @@ function Settings() {
                 <Trash2 className="h-4 w-4" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold">Delete account</p>
+                <p className="text-sm font-semibold">{t("settings.delete_account")}</p>
                 <p className="text-[11px] text-destructive/80">
-                  Permanently remove your account and data
+                  {t("settings.delete_account_desc")}
                 </p>
               </div>
               <ChevronRight className="h-4 w-4" />

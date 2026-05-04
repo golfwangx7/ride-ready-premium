@@ -10,6 +10,7 @@ import { Camera } from "lucide-react";
 import { useVehicles, formatDistance, type Vehicle } from "@/context/vehicle-context";
 import { useProfile } from "@/context/profile-context";
 import { AddVehicleDialog } from "@/components/add-vehicle-dialog";
+import { useI18n } from "@/context/i18n-context";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
@@ -25,6 +26,7 @@ function Profile() {
   const { vehicles, activeId } = useVehicles();
   const { profile } = useProfile();
   const [addingVehicle, setAddingVehicle] = useState(false);
+  const { t } = useI18n();
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
@@ -105,9 +107,9 @@ function Profile() {
         <section className="animate-fade-up mt-9" style={{ animationDelay: "240ms" }}>
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h2 className="font-display text-lg font-medium">Garage</h2>
+              <h2 className="font-display text-lg font-medium">{t("profile.garage")}</h2>
               <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                {vehicles.length} vehicles
+                {vehicles.length} {t("profile.vehicles")}
               </p>
             </div>
             <button
@@ -116,7 +118,7 @@ function Profile() {
               className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/15 active:scale-95"
             >
               <Plus className="h-3.5 w-3.5" />
-              Add
+              {t("profile.add")}
             </button>
           </div>
 
@@ -133,7 +135,7 @@ function Profile() {
               style={{ animationDelay: `${300 + vehicles.length * 80}ms` }}
             >
               <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" />
-              Add Vehicle
+              {t("profile.add_vehicle")}
             </button>
           </div>
         </section>
@@ -142,9 +144,9 @@ function Profile() {
       {/* Bottom nav */}
       <nav className="fixed bottom-5 left-1/2 z-20 -translate-x-1/2">
         <div className="flex items-center gap-1 rounded-full border border-border bg-card/70 px-2 py-2 backdrop-blur-2xl shadow-[var(--shadow-elegant)]">
-          <NavBtn to="/" icon={<Home className="h-5 w-5" />} label="Home" />
-          <NavBtn to="/feed" icon={<Newspaper className="h-5 w-5" />} label="Feed" />
-          <NavBtn to="/profile" icon={<User className="h-5 w-5" />} label="Profile" active />
+          <NavBtn to="/" icon={<Home className="h-5 w-5" />} label={t("nav.home")} />
+          <NavBtn to="/feed" icon={<Newspaper className="h-5 w-5" />} label={t("nav.feed")} />
+          <NavBtn to="/profile" icon={<User className="h-5 w-5" />} label={t("nav.profile")} active />
         </div>
       </nav>
 

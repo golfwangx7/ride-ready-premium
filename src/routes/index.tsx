@@ -4,6 +4,7 @@ import roadBg from "@/assets/road-bg.jpg";
 import mapMini from "@/assets/map-mini.jpg";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useMode } from "@/context/mode-context";
+import { useI18n } from "@/context/i18n-context";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { mode } = useMode();
+  const { t } = useI18n();
   const machineCopy = mode === "moto" ? "Helmet on. Throttle ready." : "Engine warm. Cabin set.";
   const lastRoute = mode === "moto" ? "Pacific Coast Hwy" : "Skyline Boulevard";
   const lastDist = mode === "moto" ? "84.2 km" : "126.4 km";
@@ -38,7 +40,7 @@ function Index() {
         {/* Header */}
         <header className="animate-fade-up flex items-center justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Welcome back</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("home.welcome")}</p>
             <p className="mt-1 font-display text-base font-medium">Alex</p>
           </div>
           <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card/60 backdrop-blur-md">
@@ -49,9 +51,9 @@ function Index() {
         {/* Hero text */}
         <section className="animate-fade-up mt-10" style={{ animationDelay: "100ms" }}>
           <h1 className="font-display text-[2.6rem] font-light leading-[1.05] tracking-tight">
-            Ready for your
+            {t("home.ready")}
             <br />
-            <span className="font-medium italic text-primary">next ride?</span>
+            <span className="font-medium italic text-primary">{t("home.next_ride")}</span>
           </h1>
           <p key={mode} className="animate-fade-up mt-3 text-sm text-muted-foreground">
             {machineCopy} The road is waiting.
@@ -74,19 +76,19 @@ function Index() {
             <span className="absolute inset-2 rounded-full border border-white/10" />
             <div className="relative flex flex-col items-center text-primary-foreground">
               <Play className="h-8 w-8 fill-current" strokeWidth={0} />
-              <span className="mt-2 font-display text-lg font-semibold tracking-wide">Start Ride</span>
+              <span className="mt-2 font-display text-lg font-semibold tracking-wide">{t("home.start_ride")}</span>
             </div>
           </Link>
           <p className="mt-5 text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            Tap to begin tracking
+            {t("home.tap_to_begin")}
           </p>
         </section>
 
         {/* Last ride card */}
         <section className="animate-fade-up mt-auto pt-10" style={{ animationDelay: "400ms" }}>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Last ride</h2>
-            <button className="text-xs text-primary hover:text-primary/80">View all</button>
+            <h2 className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("home.last_ride")}</h2>
+            <button className="text-xs text-primary hover:text-primary/80">{t("home.view_all")}</button>
           </div>
           <article
             className="group relative overflow-hidden rounded-2xl border border-border backdrop-blur-xl transition-all hover:border-primary/40"
@@ -108,9 +110,9 @@ function Index() {
               </div>
             </div>
             <div key={mode} className="animate-fade-up grid grid-cols-3 gap-2 p-4">
-              <Stat icon={<TrendingUp className="h-3.5 w-3.5" />} label="Distance" value={lastDist} />
-              <Stat icon={<Clock className="h-3.5 w-3.5" />} label="Duration" value="1h 42m" />
-              <Stat label="Top" value={lastTop} highlight />
+              <Stat icon={<TrendingUp className="h-3.5 w-3.5" />} label={t("stat.distance")} value={lastDist} />
+              <Stat icon={<Clock className="h-3.5 w-3.5" />} label={t("stat.duration")} value="1h 42m" />
+              <Stat label={t("stat.top")} value={lastTop} highlight />
             </div>
           </article>
         </section>
@@ -119,9 +121,9 @@ function Index() {
       {/* Bottom nav */}
       <nav className="fixed bottom-5 left-1/2 z-20 -translate-x-1/2">
         <div className="flex items-center gap-1 rounded-full border border-border bg-card/70 px-2 py-2 backdrop-blur-2xl shadow-[var(--shadow-elegant)]">
-          <NavBtn to="/" icon={<Home className="h-5 w-5" />} label="Home" active />
-          <NavBtn to="/feed" icon={<Newspaper className="h-5 w-5" />} label="Feed" />
-          <NavBtn to="/profile" icon={<User className="h-5 w-5" />} label="Profile" />
+          <NavBtn to="/" icon={<Home className="h-5 w-5" />} label={t("nav.home")} active />
+          <NavBtn to="/feed" icon={<Newspaper className="h-5 w-5" />} label={t("nav.feed")} />
+          <NavBtn to="/profile" icon={<User className="h-5 w-5" />} label={t("nav.profile")} />
         </div>
       </nav>
     </div>
