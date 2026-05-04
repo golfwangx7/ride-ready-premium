@@ -18,6 +18,8 @@ const fr: Partial<Record<TranslationKey, string>> = {
   "profile.vehicles": "véhicules",
   "profile.add": "Ajouter",
   "profile.add_vehicle": "Ajouter un véhicule",
+  "profile.empty_title": "Aucun véhicule",
+  "profile.empty_subtitle": "Ajoutez votre premier véhicule pour suivre vos sorties",
   "settings.title": "Paramètres",
   "settings.account": "Compte",
   "settings.app": "Application",
