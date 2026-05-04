@@ -3,6 +3,8 @@ import { Settings, Plus, Bike, Car, MapPin, ChevronRight, Home, Newspaper, User 
 import avatar from "@/assets/avatar.jpg";
 import carBmw from "@/assets/car-bmw.jpg";
 import motoYamaha from "@/assets/moto-yamaha.jpg";
+import { ModeToggle, modeStats } from "@/components/mode-toggle";
+import { useMode } from "@/context/mode-context";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
@@ -28,6 +30,8 @@ const vehicles = [
 ];
 
 function Profile() {
+  const { mode } = useMode();
+  const stats = modeStats(mode);
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
@@ -69,15 +73,21 @@ function Profile() {
           </p>
         </section>
 
+        {/* Mode toggle */}
+        <section className="animate-fade-up mt-7" style={{ animationDelay: "120ms" }}>
+          <ModeToggle />
+        </section>
+
         {/* Stats */}
-        <section className="animate-fade-up mt-8" style={{ animationDelay: "160ms" }}>
+        <section className="animate-fade-up mt-5" style={{ animationDelay: "180ms" }}>
           <div
-            className="grid grid-cols-3 overflow-hidden rounded-2xl border border-border backdrop-blur-md"
+            key={mode}
+            className="animate-fade-up grid grid-cols-3 overflow-hidden rounded-2xl border border-border backdrop-blur-md"
             style={{ background: "var(--gradient-surface)" }}
           >
-            <Stat value="128" label="Rides" />
-            <Stat value="8,894" label="km" divided />
-            <Stat value="142" label="Top km/h" divided highlight />
+            <Stat value={String(stats.rides)} label={mode === "moto" ? "Moto rides" : "Car rides"} />
+            <Stat value={stats.distance} label="km" divided />
+            <Stat value={String(stats.top)} label="Top km/h" divided highlight />
           </div>
         </section>
 

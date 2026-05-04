@@ -1,16 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Bike, Car, MapPin, Heart, Home, Newspaper, User, Wind, Route as RouteIcon, Clock } from "lucide-react";
+import { Bike, Car, MapPin, Heart, Home, Newspaper, User, Wind, Route as RouteIcon, Clock, Globe } from "lucide-react";
 import feed1 from "@/assets/feed-1.jpg";
 import feed2 from "@/assets/feed-2.jpg";
 import feed3 from "@/assets/feed-3.jpg";
 import avatar from "@/assets/avatar.jpg";
+import { ModeToggle } from "@/components/mode-toggle";
+import { useMode } from "@/context/mode-context";
 
 export const Route = createFileRoute("/feed")({
   component: Feed,
 });
 
-type Filter = "nearby" | "car" | "moto";
+type Filter = "all" | "mode";
 
 const posts = [
   {
@@ -58,8 +60,9 @@ const posts = [
 ];
 
 function Feed() {
-  const [filter, setFilter] = useState<Filter>("nearby");
-  const filtered = filter === "nearby" ? posts : posts.filter((p) => p.type === filter);
+  const { mode } = useMode();
+  const [filter, setFilter] = useState<Filter>("mode");
+  const filtered = filter === "all" ? posts : posts.filter((p) => p.type === mode);
 
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
@@ -70,36 +73,34 @@ function Feed() {
 
       <main className="relative mx-auto w-full max-w-md px-6 pb-32 pt-12">
         {/* Header */}
-        <header className="animate-fade-up flex items-end justify-between">
+        <header className="animate-fade-up flex items-start justify-between gap-4">
           <div>
             <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Discover</p>
             <h1 className="mt-1 font-display text-3xl font-light tracking-tight">
               <span className="font-medium italic text-primary">Feed</span>
             </h1>
           </div>
-          <Link to="/" className="text-xs uppercase tracking-[0.25em] text-muted-foreground hover:text-foreground">
-            Home →
-          </Link>
+          <ModeToggle size="sm" />
         </header>
 
         {/* Filters */}
         <section className="animate-fade-up mt-7 flex gap-2 overflow-x-auto pb-1" style={{ animationDelay: "80ms" }}>
-          <FilterChip active={filter === "nearby"} onClick={() => setFilter("nearby")}>
+          <FilterChip active={filter === "mode"} onClick={() => setFilter("mode")}>
+            {mode === "moto" ? <Bike className="h-3.5 w-3.5" /> : <Car className="h-3.5 w-3.5" />}
+            {mode === "moto" ? "Motorcycle" : "Car"}
+          </FilterChip>
+          <FilterChip active={filter === "all"} onClick={() => setFilter("all")}>
+            <Globe className="h-3.5 w-3.5" />
+            All
+          </FilterChip>
+          <FilterChip active={false} onClick={() => {}}>
             <MapPin className="h-3.5 w-3.5" />
             Nearby
-          </FilterChip>
-          <FilterChip active={filter === "car"} onClick={() => setFilter("car")}>
-            <Car className="h-3.5 w-3.5" />
-            Car
-          </FilterChip>
-          <FilterChip active={filter === "moto"} onClick={() => setFilter("moto")}>
-            <Bike className="h-3.5 w-3.5" />
-            Motorcycle
           </FilterChip>
         </section>
 
         {/* Posts */}
-        <section className="mt-6 space-y-4">
+        <section key={`${mode}-${filter}`} className="mt-6 space-y-4">
           {filtered.map((p, i) => (
             <Post key={p.id} post={p} delay={160 + i * 80} />
           ))}
