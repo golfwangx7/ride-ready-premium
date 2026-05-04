@@ -100,7 +100,7 @@ function Feed() {
         </section>
 
         {/* Posts */}
-        <section className="mt-6 space-y-4">
+        <section key={`${mode}-${filter}`} className="mt-6 space-y-4">
           {filtered.map((p, i) => (
             <Post key={p.id} post={p} delay={160 + i * 80} />
           ))}
