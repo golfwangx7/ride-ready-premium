@@ -1,33 +1,24 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Pause, Play, Square } from "lucide-react";
 import mapLive from "@/assets/map-live.jpg";
+import { useRide, formatDuration, mpsToKmh } from "@/context/ride-context";
 
 export const Route = createFileRoute("/tracking")({
   component: Tracking,
 });
 
-function formatTime(s: number) {
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const sec = s % 60;
-  const pad = (n: number) => n.toString().padStart(2, "0");
-  return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${pad(m)}:${pad(sec)}`;
-}
-
 function Tracking() {
-  const [seconds, setSeconds] = useState(0);
-  const [running, setRunning] = useState(true);
-  const [speed, setSpeed] = useState(64);
+  const navigate = useNavigate();
+  const { status, stats, start, pause, resume, stop } = useRide();
 
+  // Auto-start tracking when entering the screen if not already running.
   useEffect(() => {
-    if (!running) return;
-    const id = setInterval(() => {
-      setSeconds((s) => s + 1);
-      setSpeed((v) => Math.max(0, Math.min(180, v + (Math.random() - 0.5) * 6)));
-    }, 1000);
-    return () => clearInterval(id);
-  }, [running]);
+    if (status === "idle") start();
+  }, [status, start]);
+
+  const running = status === "recording";
+  const speed = Math.round(mpsToKmh(stats.currentSpeed));
 
   return (
     <div className="dark relative h-screen w-screen overflow-hidden bg-background text-foreground">
@@ -57,7 +48,7 @@ function Tracking() {
               Elapsed
             </p>
             <p className="mt-1 font-display text-3xl font-light tracking-tight tabular-nums">
-              {formatTime(seconds)}
+              {formatDuration(stats.duration)}
             </p>
           </div>
           <div className="text-right">
@@ -65,7 +56,7 @@ function Tracking() {
               Speed
             </p>
             <p className="mt-1 font-display text-base font-medium tabular-nums text-muted-foreground">
-              {Math.round(speed)}
+              {speed}
               <span className="ml-1 text-[10px] uppercase tracking-wider">km/h</span>
             </p>
           </div>
@@ -92,7 +83,7 @@ function Tracking() {
         <div className="mx-auto flex max-w-md items-center justify-center gap-5">
           <button
             type="button"
-            onClick={() => setRunning((r) => !r)}
+            onClick={() => (running ? pause() : resume())}
             aria-label={running ? "Pause" : "Resume"}
             className="flex h-20 w-20 flex-col items-center justify-center rounded-full border border-border bg-card/70 text-foreground backdrop-blur-2xl transition-all duration-300 hover:scale-105 hover:border-primary/40 active:scale-95 shadow-[var(--shadow-elegant)]"
           >
@@ -109,6 +100,7 @@ function Tracking() {
           <Link
             to="/summary"
             aria-label="Stop ride"
+            onClick={() => stop()}
             className="group relative flex h-24 w-24 flex-col items-center justify-center rounded-full text-primary-foreground transition-all duration-300 hover:scale-105 active:scale-95"
             style={{
               background: "var(--gradient-primary)",
@@ -121,6 +113,8 @@ function Tracking() {
           </Link>
         </div>
       </footer>
+      {/* navigate is unused but kept for future programmatic redirects */}
+      <span className="hidden">{typeof navigate}</span>
     </div>
   );
 }
