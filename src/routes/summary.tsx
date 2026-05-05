@@ -1,18 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Share2, Bookmark, ArrowLeft, Gauge, Route as RouteIcon, Clock, Wind, Flag, Car, Bike, Sparkles, ChevronRight } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Share2, Bookmark, ArrowLeft, Gauge, Route as RouteIcon, Clock, Wind, Flag, Car, Bike, Sparkles, ChevronRight, Plus, X, Fuel, Coffee, Utensils, Shield, MoreHorizontal } from "lucide-react";
 import mapSummary from "@/assets/map-summary.jpg";
 import { useRide, formatHoursMinutes, metersToKm, mpsToKmh } from "@/context/ride-context";
 import { useVehicles } from "@/context/vehicle-context";
 import { usePremium } from "@/context/premium-context";
+import { useStops, type StopKind } from "@/context/stops-context";
+import { MapboxMap, getMapboxToken } from "@/components/mapbox-map";
 
 export const Route = createFileRoute("/summary")({
   component: Summary,
 });
 
 function Summary() {
-  const { name, stats } = useRide();
+  const { name, stats, points } = useRide();
   const { vehicles, activeId } = useVehicles();
   const { isPremium, openPaywall } = usePremium();
+  const { stops, addStop, removeStop } = useStops();
   const active = vehicles.find((v) => v.id === activeId) ?? vehicles[0];
   const [first, ...rest] = name.split(" ");
   const hasRide = stats.duration > 0 || stats.distance > 0;
@@ -20,6 +24,14 @@ function Summary() {
   const durationStr = hasRide ? formatHoursMinutes(stats.duration) : "1:42";
   const avgKmh = hasRide ? Math.round(mpsToKmh(stats.avgSpeed)) : 49;
   const maxKmh = hasRide ? Math.round(mpsToKmh(stats.maxSpeed)) : 142;
+
+  const route = useMemo<Array<[number, number]>>(
+    () => points.map((p) => [p.lng, p.lat]),
+    [points],
+  );
+  const hasMapToken = !!getMapboxToken();
+  const lastPoint = points[points.length - 1];
+  const center = lastPoint ? ([lastPoint.lng, lastPoint.lat] as [number, number]) : undefined;
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
@@ -54,28 +66,21 @@ function Summary() {
         {/* Map */}
         <section className="animate-fade-up mt-7" style={{ animationDelay: "160ms" }}>
           <div
-            className="group relative overflow-hidden rounded-3xl border border-border"
+            className="group relative h-72 overflow-hidden rounded-3xl border border-border"
             style={{ boxShadow: "var(--shadow-elegant)" }}
           >
-            <img
-              src={mapSummary}
-              alt="Ride route map"
-              width={1280}
-              height={1024}
-              className="h-72 w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-card/80 via-transparent to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between p-4">
-              <div>
-                <p className="text-[9px] uppercase tracking-[0.25em] text-muted-foreground">From</p>
-                <p className="font-display text-sm font-medium">Twin Peaks</p>
-              </div>
-              <div className="h-px flex-1 mx-4 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-              <div className="text-right">
-                <p className="text-[9px] uppercase tracking-[0.25em] text-muted-foreground">To</p>
-                <p className="font-display text-sm font-medium">Half Moon Bay</p>
-              </div>
-            </div>
+            {hasMapToken && route.length > 1 ? (
+              <MapboxMap center={center} route={route} follow={false} className="absolute inset-0 h-full w-full" />
+            ) : (
+              <img
+                src={mapSummary}
+                alt="Ride route map"
+                width={1280}
+                height={1024}
+                className="h-full w-full object-cover"
+              />
+            )}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-card/80 via-transparent to-transparent" />
           </div>
         </section>
 
@@ -84,7 +89,7 @@ function Summary() {
           <StatCard icon={<RouteIcon className="h-4 w-4" />} label="Distance" value={distanceKm} unit="km" featured />
           <StatCard icon={<Clock className="h-4 w-4" />} label="Duration" value={durationStr} unit="h" />
           <StatCard icon={<Wind className="h-4 w-4" />} label="Avg Speed" value={String(avgKmh)} unit="km/h" />
-          <StatCard icon={<Flag className="h-4 w-4" />} label="Stops" value="3" unit="" />
+          <StatCard icon={<Flag className="h-4 w-4" />} label="Stops" value={String(stops.length)} unit="" />
         </section>
 
         {/* Max speed strip */}
@@ -99,6 +104,9 @@ function Summary() {
             </p>
           </div>
         </section>
+
+        {/* Stops editor */}
+        <StopsEditor stops={stops} onAdd={addStop} onRemove={removeStop} />
 
         {/* Active vehicle */}
         {active && (
@@ -227,3 +235,96 @@ function StatCard({
     </div>
   );
 }
+
+const STOP_KINDS: { kind: StopKind; label: string; icon: React.ReactNode }[] = [
+  { kind: "fuel", label: "Fuel", icon: <Fuel className="h-3.5 w-3.5" /> },
+  { kind: "break", label: "Break", icon: <Coffee className="h-3.5 w-3.5" /> },
+  { kind: "food", label: "Food", icon: <Utensils className="h-3.5 w-3.5" /> },
+  { kind: "police", label: "Police", icon: <Shield className="h-3.5 w-3.5" /> },
+  { kind: "other", label: "Other", icon: <MoreHorizontal className="h-3.5 w-3.5" /> },
+];
+
+function StopsEditor({
+  stops,
+  onAdd,
+  onRemove,
+}: {
+  stops: { id: string; kind: StopKind; note?: string }[];
+  onAdd: (kind: StopKind) => void;
+  onRemove: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const counts = stops.reduce<Record<string, number>>((acc, s) => {
+    acc[s.kind] = (acc[s.kind] ?? 0) + 1;
+    return acc;
+  }, {});
+  return (
+    <section className="animate-fade-up mt-5" style={{ animationDelay: "360ms" }}>
+      <div className="rounded-2xl border border-border bg-card/40 p-4 backdrop-blur-md">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Ride stops</p>
+            <p className="mt-0.5 font-display text-sm font-medium">
+              {stops.length === 0 ? "No stops logged" : `${stops.length} stop${stops.length > 1 ? "s" : ""}`}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11px] font-medium text-primary"
+          >
+            <Plus className="h-3 w-3" />
+            Add
+          </button>
+        </div>
+
+        {open && (
+          <div className="mt-4 grid grid-cols-5 gap-2">
+            {STOP_KINDS.map((s) => (
+              <button
+                key={s.kind}
+                type="button"
+                onClick={() => onAdd(s.kind)}
+                className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-background/40 px-2 py-2.5 text-[10px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+              >
+                {s.icon}
+                {s.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {stops.length > 0 && (
+          <ul className="mt-3 space-y-1.5">
+            {stops.map((s) => {
+              const meta = STOP_KINDS.find((k) => k.kind === s.kind);
+              return (
+                <li key={s.id} className="flex items-center gap-2 rounded-xl border border-border bg-background/40 px-3 py-2 text-[12px]">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/15 text-primary">
+                    {meta?.icon}
+                  </span>
+                  <span className="flex-1 font-medium capitalize">{meta?.label ?? s.kind}</span>
+                  <button
+                    type="button"
+                    onClick={() => onRemove(s.id)}
+                    className="flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground hover:text-destructive"
+                    aria-label="Remove stop"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {Object.keys(counts).length > 0 && (
+          <p className="mt-3 text-[10px] text-muted-foreground">
+            {Object.entries(counts).map(([k, n]) => `${n} ${k}`).join(" · ")}
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
+

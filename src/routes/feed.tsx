@@ -1,70 +1,117 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { Bike, Car, MapPin, Heart, Home, Newspaper, User, Wind, Route as RouteIcon, Clock, Globe } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Bike, Car, MapPin, Heart, Home, Newspaper, User, Wind, Route as RouteIcon, Clock, Globe, Loader2, AlertCircle } from "lucide-react";
+import avatar from "@/assets/avatar.jpg";
 import feed1 from "@/assets/feed-1.jpg";
 import feed2 from "@/assets/feed-2.jpg";
 import feed3 from "@/assets/feed-3.jpg";
-import avatar from "@/assets/avatar.jpg";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useMode } from "@/context/mode-context";
 import { useI18n } from "@/context/i18n-context";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/feed")({
   component: Feed,
 });
 
-type Filter = "all" | "mode";
+type Filter = "all" | "mode" | "nearby";
 
-const posts = [
-  {
-    id: 1,
-    title: "Tail of the Dragon",
-    user: "alex.rides",
-    initial: "A",
-    avatar,
-    distance: "84 km",
-    duration: "1h 42m",
-    speed: "72 km/h",
-    likes: 248,
-    type: "moto" as const,
-    location: "Deals Gap, NC",
-    map: feed1,
-  },
-  {
-    id: 2,
-    title: "Pacific Coast Sunrise",
-    user: "marina.k",
-    initial: "M",
-    avatar: null,
-    distance: "126 km",
-    duration: "2h 18m",
-    speed: "65 km/h",
-    likes: 412,
-    type: "car" as const,
-    location: "Big Sur, CA",
-    map: feed2,
-  },
-  {
-    id: 3,
-    title: "Late Night City Loop",
-    user: "kenji.t",
-    initial: "K",
-    avatar: null,
-    distance: "32 km",
-    duration: "48m",
-    speed: "44 km/h",
-    likes: 89,
-    type: "car" as const,
-    location: "Tokyo · Shibuya",
-    map: feed3,
-  },
-];
+type FeedPost = {
+  id: string;
+  title: string;
+  user_handle: string;
+  user_initial: string;
+  vehicle_type: "moto" | "car";
+  location: string;
+  lat: number;
+  lng: number;
+  distance_km: number;
+  duration_minutes: number;
+  avg_speed_kmh: number;
+  likes: number;
+  map_image?: string | null;
+};
+
+const FALLBACK_MAPS = [feed1, feed2, feed3];
+const NEARBY_RADIUS_KM = 50; // a bit generous for a demo dataset
+
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number) {
+  const R = 6371;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+function formatDuration(min: number) {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
 
 function Feed() {
   const { mode } = useMode();
   const { t } = useI18n();
   const [filter, setFilter] = useState<Filter>("mode");
-  const filtered = filter === "all" ? posts : posts.filter((p) => p.type === mode);
+  const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null);
+  const [geoError, setGeoError] = useState<string | null>(null);
+  const [requestingGeo, setRequestingGeo] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from("feed_posts")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (cancelled) return;
+      if (!error && data) setPosts(data as FeedPost[]);
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const requestLocation = () => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGeoError("Location not supported on this device");
+      return;
+    }
+    setRequestingGeo(true);
+    setGeoError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setRequestingGeo(false);
+      },
+      (err) => {
+        setRequestingGeo(false);
+        setGeoError(err.code === 1 ? "Location permission denied" : "Couldn't get location");
+        setFilter("mode");
+      },
+      { enableHighAccuracy: false, maximumAge: 60000, timeout: 8000 }
+    );
+  };
+
+  const handleFilter = (f: Filter) => {
+    setFilter(f);
+    if (f === "nearby" && !userLoc) requestLocation();
+  };
+
+  const filtered = useMemo(() => {
+    if (filter === "all") return posts;
+    if (filter === "mode") return posts.filter((p) => p.vehicle_type === mode);
+    if (filter === "nearby" && userLoc) {
+      return posts
+        .map((p) => ({ ...p, _d: haversineKm(userLoc.lat, userLoc.lng, p.lat, p.lng) }))
+        .filter((p) => p._d <= NEARBY_RADIUS_KM)
+        .sort((a, b) => a._d - b._d);
+    }
+    return [];
+  }, [filter, posts, mode, userLoc]);
 
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
@@ -86,28 +133,47 @@ function Feed() {
         </header>
 
         {/* Filters */}
-        <section className="animate-fade-up mt-7 flex gap-2 overflow-x-auto pb-1" style={{ animationDelay: "80ms" }}>
-          <FilterChip active={filter === "mode"} onClick={() => setFilter("mode")}>
+        <section className="animate-fade-up mt-7 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1" style={{ animationDelay: "80ms" }}>
+          <FilterChip active={filter === "mode"} onClick={() => handleFilter("mode")}>
             {mode === "moto" ? <Bike className="h-3.5 w-3.5" /> : <Car className="h-3.5 w-3.5" />}
-            {mode === "moto" ? "Motorcycle" : "Car"}
+            {mode === "moto" ? "Moto" : "Car"}
           </FilterChip>
-          <FilterChip active={filter === "all"} onClick={() => setFilter("all")}>
+          <FilterChip active={filter === "all"} onClick={() => handleFilter("all")}>
             <Globe className="h-3.5 w-3.5" />
             All
           </FilterChip>
-          <FilterChip active={false} onClick={() => {}}>
-            <MapPin className="h-3.5 w-3.5" />
+          <FilterChip active={filter === "nearby"} onClick={() => handleFilter("nearby")}>
+            {requestingGeo ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MapPin className="h-3.5 w-3.5" />}
             Nearby
           </FilterChip>
         </section>
 
+        {filter === "nearby" && geoError && (
+          <div className="mt-4 flex items-start gap-2 rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-[12px] text-destructive">
+            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <div className="flex-1">
+              <p className="font-medium">{geoError}</p>
+              <p className="mt-0.5 text-[11px] text-destructive/80">
+                Enable location in your device settings to see rides near you.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Posts */}
         <section key={`${mode}-${filter}`} className="mt-6 space-y-4">
-          {filtered.map((p, i) => (
-            <Post key={p.id} post={p} delay={160 + i * 80} />
+          {loading && (
+            <div className="flex items-center justify-center py-12 text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin" />
+            </div>
+          )}
+          {!loading && filtered.map((p, i) => (
+            <Post key={p.id} post={p} mapImage={FALLBACK_MAPS[i % FALLBACK_MAPS.length]} delay={160 + i * 60} />
           ))}
-          {filtered.length === 0 && (
-            <p className="py-12 text-center text-sm text-muted-foreground">No rides yet — check back soon.</p>
+          {!loading && filtered.length === 0 && !geoError && (
+            <p className="py-12 text-center text-sm text-muted-foreground">
+              {filter === "nearby" ? "No rides within 50 km — try All or Moto/Car." : "No rides yet — check back soon."}
+            </p>
           )}
         </section>
       </main>
@@ -148,9 +214,9 @@ function FilterChip({
   );
 }
 
-function Post({ post, delay }: { post: (typeof posts)[number]; delay: number }) {
+function Post({ post, mapImage, delay }: { post: FeedPost; mapImage: string; delay: number }) {
   const [liked, setLiked] = useState(false);
-  const Icon = post.type === "car" ? Car : Bike;
+  const Icon = post.vehicle_type === "car" ? Car : Bike;
   return (
     <article
       className="animate-fade-up group overflow-hidden rounded-2xl border border-border backdrop-blur-md transition-all hover:border-primary/30"
@@ -158,7 +224,7 @@ function Post({ post, delay }: { post: (typeof posts)[number]; delay: number }) 
     >
       <div className="relative h-40 w-full overflow-hidden">
         <img
-          src={post.map}
+          src={post.map_image ?? mapImage}
           alt={`${post.title} route`}
           width={1024}
           height={512}
@@ -168,7 +234,7 @@ function Post({ post, delay }: { post: (typeof posts)[number]; delay: number }) 
         <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
         <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1 text-[10px] uppercase tracking-wider backdrop-blur-md">
           <Icon className="h-3 w-3 text-primary" />
-          {post.type === "car" ? "Car" : "Moto"}
+          {post.vehicle_type === "car" ? "Car" : "Moto"}
         </div>
       </div>
 
@@ -186,9 +252,7 @@ function Post({ post, delay }: { post: (typeof posts)[number]; delay: number }) 
             aria-label="Like"
             className="flex shrink-0 items-center gap-1 rounded-full border border-border bg-card/60 px-2.5 py-1 text-[11px] text-muted-foreground transition-colors hover:border-primary/30"
           >
-            <Heart
-              className={`h-3.5 w-3.5 transition-all ${liked ? "fill-primary text-primary scale-110" : ""}`}
-            />
+            <Heart className={`h-3.5 w-3.5 transition-all ${liked ? "fill-primary text-primary scale-110" : ""}`} />
             <span className={liked ? "text-primary tabular-nums" : "tabular-nums"}>
               {post.likes + (liked ? 1 : 0)}
             </span>
@@ -198,27 +262,23 @@ function Post({ post, delay }: { post: (typeof posts)[number]; delay: number }) 
         <div className="mt-3 flex items-center gap-4 text-[11px] text-muted-foreground">
           <span className="flex items-center gap-1">
             <RouteIcon className="h-3 w-3" />
-            <span className="font-medium text-foreground tabular-nums">{post.distance}</span>
+            <span className="font-medium text-foreground tabular-nums">{post.distance_km} km</span>
           </span>
           <span className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            <span className="font-medium text-foreground tabular-nums">{post.duration}</span>
+            <span className="font-medium text-foreground tabular-nums">{formatDuration(post.duration_minutes)}</span>
           </span>
           <span className="flex items-center gap-1">
             <Wind className="h-3 w-3" />
-            <span className="font-medium text-foreground tabular-nums">{post.speed}</span>
+            <span className="font-medium text-foreground tabular-nums">{post.avg_speed_kmh} km/h</span>
           </span>
         </div>
 
         <div className="mt-3 flex items-center gap-2 border-t border-border pt-3">
-          {post.avatar ? (
-            <img src={post.avatar} alt="" className="h-6 w-6 rounded-full object-cover" />
-          ) : (
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/15 text-[10px] font-medium text-primary">
-              {post.initial}
-            </div>
-          )}
-          <span className="text-xs text-muted-foreground">@{post.user}</span>
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/15 text-[10px] font-medium text-primary">
+            {post.user_initial}
+          </div>
+          <span className="text-xs text-muted-foreground">@{post.user_handle}</span>
         </div>
       </div>
     </article>
@@ -250,3 +310,6 @@ function NavBtn({
     </Link>
   );
 }
+
+// avatar import is referenced via fallback assets only; keep tree-shake quiet
+void avatar;

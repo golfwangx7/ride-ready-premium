@@ -1,15 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Pause, Play, Square } from "lucide-react";
-import mapLive from "@/assets/map-live.jpg";
 import { useRide, formatDuration, mpsToKmh } from "@/context/ride-context";
+import { MapboxMap } from "@/components/mapbox-map";
 
 export const Route = createFileRoute("/tracking")({
   component: Tracking,
 });
 
 function Tracking() {
-  const { status, autoPaused, stats, start, pause, resume, stop } = useRide();
+  const { status, autoPaused, stats, points, start, pause, resume, stop } = useRide();
 
   // Auto-start tracking when entering the screen if not already running.
   useEffect(() => {
@@ -19,41 +19,34 @@ function Tracking() {
   const running = status === "recording" && !autoPaused;
   const speed = Math.round(mpsToKmh(stats.currentSpeed));
 
+  const route = useMemo<Array<[number, number]>>(
+    () => points.map((p) => [p.lng, p.lat]),
+    [points],
+  );
+  const lastPoint = points[points.length - 1];
+  const center = lastPoint ? ([lastPoint.lng, lastPoint.lat] as [number, number]) : undefined;
+
   return (
     <div className="dark relative h-screen w-screen overflow-hidden bg-background text-foreground">
-      {/* Map */}
-      <img
-        src={mapLive}
-        alt="Live route map"
-        className="absolute inset-0 h-full w-full object-cover"
-      />
+      {/* Live map */}
+      <MapboxMap center={center} route={route} follow className="absolute inset-0 h-full w-full" />
+
       {/* Vignette */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,oklch(0.14_0.012_250/0.85)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,oklch(0.14_0.012_250/0.7)_100%)]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-background to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-background via-background/70 to-transparent" />
-
-      {/* Pulsing position dot */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-        <span className="absolute inset-0 -m-6 animate-ping rounded-full bg-primary/30" />
-        <span className="absolute inset-0 -m-3 rounded-full bg-primary/40 blur-md" />
-        <span className="relative block h-4 w-4 rounded-full border-2 border-background bg-primary shadow-[0_0_24px_oklch(0.82_0.16_200/0.8)]" />
-      </div>
 
       {/* Top overlay */}
       <header className="animate-fade-up absolute inset-x-0 top-0 z-10 px-6 pt-12">
         <div className="mx-auto flex max-w-md items-center justify-between rounded-2xl border border-border bg-card/60 px-5 py-4 backdrop-blur-2xl shadow-[var(--shadow-elegant)]">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-              Elapsed
-            </p>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Elapsed</p>
             <p className="mt-1 font-display text-3xl font-light tracking-tight tabular-nums">
               {formatDuration(stats.duration)}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-              Speed
-            </p>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Speed</p>
             <p className="mt-1 font-display text-base font-medium tabular-nums text-muted-foreground">
               {speed}
               <span className="ml-1 text-[10px] uppercase tracking-wider">km/h</span>

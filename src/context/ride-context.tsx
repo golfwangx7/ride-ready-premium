@@ -62,7 +62,7 @@ const MIN_SAMPLE_INTERVAL_MS = 3000; // never record points faster than this
 const MIN_SAMPLE_DISTANCE_M = 10; // unless the user moved at least 10m
 const MAX_ACCURACY_M = 50; // drop fixes worse than ~50m accuracy
 const TICK_MS = 1000; // duration ticker
-const AUTO_PAUSE_AFTER_MS = 15000; // stationary for 15s → auto-pause
+const AUTO_PAUSE_AFTER_MS = 120000; // stationary for ~2 min → auto-pause (ignore traffic lights)
 const AUTO_RESUME_SPEED_MPS = 1.4; // ~5 km/h sustained → auto-resume
 const AUTO_RESUME_DISTANCE_M = 15; // ...or moved 15m from pause spot
 
