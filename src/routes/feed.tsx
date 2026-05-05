@@ -29,6 +29,7 @@ type FeedPost = {
   duration_minutes: number;
   avg_speed_kmh: number;
   likes: number;
+  map_image?: string | null;
 };
 
 const FALLBACK_MAPS = [feed1, feed2, feed3];
