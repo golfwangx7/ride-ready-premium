@@ -66,28 +66,21 @@ function Summary() {
         {/* Map */}
         <section className="animate-fade-up mt-7" style={{ animationDelay: "160ms" }}>
           <div
-            className="group relative overflow-hidden rounded-3xl border border-border"
+            className="group relative h-72 overflow-hidden rounded-3xl border border-border"
             style={{ boxShadow: "var(--shadow-elegant)" }}
           >
-            <img
-              src={mapSummary}
-              alt="Ride route map"
-              width={1280}
-              height={1024}
-              className="h-72 w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-card/80 via-transparent to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between p-4">
-              <div>
-                <p className="text-[9px] uppercase tracking-[0.25em] text-muted-foreground">From</p>
-                <p className="font-display text-sm font-medium">Twin Peaks</p>
-              </div>
-              <div className="h-px flex-1 mx-4 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-              <div className="text-right">
-                <p className="text-[9px] uppercase tracking-[0.25em] text-muted-foreground">To</p>
-                <p className="font-display text-sm font-medium">Half Moon Bay</p>
-              </div>
-            </div>
+            {hasMapToken && route.length > 1 ? (
+              <MapboxMap center={center} route={route} follow={false} className="absolute inset-0 h-full w-full" />
+            ) : (
+              <img
+                src={mapSummary}
+                alt="Ride route map"
+                width={1280}
+                height={1024}
+                className="h-full w-full object-cover"
+              />
+            )}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-card/80 via-transparent to-transparent" />
           </div>
         </section>
 
@@ -96,7 +89,7 @@ function Summary() {
           <StatCard icon={<RouteIcon className="h-4 w-4" />} label="Distance" value={distanceKm} unit="km" featured />
           <StatCard icon={<Clock className="h-4 w-4" />} label="Duration" value={durationStr} unit="h" />
           <StatCard icon={<Wind className="h-4 w-4" />} label="Avg Speed" value={String(avgKmh)} unit="km/h" />
-          <StatCard icon={<Flag className="h-4 w-4" />} label="Stops" value="3" unit="" />
+          <StatCard icon={<Flag className="h-4 w-4" />} label="Stops" value={String(stops.length)} unit="" />
         </section>
 
         {/* Max speed strip */}
