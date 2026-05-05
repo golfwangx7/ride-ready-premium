@@ -105,6 +105,9 @@ function Summary() {
           </div>
         </section>
 
+        {/* Stops editor */}
+        <StopsEditor stops={stops} onAdd={addStop} onRemove={removeStop} />
+
         {/* Active vehicle */}
         {active && (
           <section className="animate-fade-up mt-5" style={{ animationDelay: "380ms" }}>
