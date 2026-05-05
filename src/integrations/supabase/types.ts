@@ -14,7 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      feed_posts: {
+        Row: {
+          avg_speed_kmh: number
+          created_at: string
+          distance_km: number
+          duration_minutes: number
+          id: string
+          lat: number
+          likes: number
+          lng: number
+          location: string
+          map_image: string | null
+          title: string
+          user_handle: string
+          user_initial: string
+          vehicle_type: string
+        }
+        Insert: {
+          avg_speed_kmh: number
+          created_at?: string
+          distance_km: number
+          duration_minutes: number
+          id?: string
+          lat: number
+          likes?: number
+          lng: number
+          location: string
+          map_image?: string | null
+          title: string
+          user_handle: string
+          user_initial: string
+          vehicle_type: string
+        }
+        Update: {
+          avg_speed_kmh?: number
+          created_at?: string
+          distance_km?: number
+          duration_minutes?: number
+          id?: string
+          lat?: number
+          likes?: number
+          lng?: number
+          location?: string
+          map_image?: string | null
+          title?: string
+          user_handle?: string
+          user_initial?: string
+          vehicle_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
