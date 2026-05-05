@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useSocials, SocialEditor } from "@/components/socials";
 import { useProfile } from "@/context/profile-context";
-import { useI18n, LANG_OPTIONS, type Lang } from "@/context/i18n-context";
+import { useI18n, LANG_OPTIONS } from "@/context/i18n-context";
 import { usePremium } from "@/context/premium-context";
 import { LanguagePicker } from "@/components/language-picker";
 
@@ -35,7 +35,7 @@ function Settings() {
   const navigate = useNavigate();
   const { profile } = useProfile();
   const { socials, setSocials } = useSocials();
-  const { t, lang, setLang } = useI18n();
+  const { t, lang } = useI18n();
   const { isPremium, setPremium } = usePremium();
   const [editingSocials, setEditingSocials] = useState(false);
   const [units, setUnits] = useState<"km" | "mi">("km");
