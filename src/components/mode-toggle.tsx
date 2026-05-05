@@ -25,7 +25,7 @@ export function ModeToggle({ size = "md", className = "" }: Props) {
       />
       <Btn active={mode === "moto"} onClick={() => setMode("moto")} sm={isSm}>
         <Bike className={isSm ? "h-3.5 w-3.5" : "h-4 w-4"} />
-        Motorcycle
+        Moto
       </Btn>
       <Btn active={mode === "car"} onClick={() => setMode("car")} sm={isSm}>
         <Car className={isSm ? "h-3.5 w-3.5" : "h-4 w-4"} />
