@@ -1,18 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Share2, Bookmark, ArrowLeft, Gauge, Route as RouteIcon, Clock, Wind, Flag, Car, Bike, Sparkles, ChevronRight } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Share2, Bookmark, ArrowLeft, Gauge, Route as RouteIcon, Clock, Wind, Flag, Car, Bike, Sparkles, ChevronRight, Plus, X, Fuel, Coffee, Utensils, Shield, MoreHorizontal } from "lucide-react";
 import mapSummary from "@/assets/map-summary.jpg";
 import { useRide, formatHoursMinutes, metersToKm, mpsToKmh } from "@/context/ride-context";
 import { useVehicles } from "@/context/vehicle-context";
 import { usePremium } from "@/context/premium-context";
+import { useStops, type StopKind } from "@/context/stops-context";
+import { MapboxMap, getMapboxToken } from "@/components/mapbox-map";
 
 export const Route = createFileRoute("/summary")({
   component: Summary,
 });
 
 function Summary() {
-  const { name, stats } = useRide();
+  const { name, stats, points } = useRide();
   const { vehicles, activeId } = useVehicles();
   const { isPremium, openPaywall } = usePremium();
+  const { stops, addStop, removeStop } = useStops();
   const active = vehicles.find((v) => v.id === activeId) ?? vehicles[0];
   const [first, ...rest] = name.split(" ");
   const hasRide = stats.duration > 0 || stats.distance > 0;
@@ -20,6 +24,14 @@ function Summary() {
   const durationStr = hasRide ? formatHoursMinutes(stats.duration) : "1:42";
   const avgKmh = hasRide ? Math.round(mpsToKmh(stats.avgSpeed)) : 49;
   const maxKmh = hasRide ? Math.round(mpsToKmh(stats.maxSpeed)) : 142;
+
+  const route = useMemo<Array<[number, number]>>(
+    () => points.map((p) => [p.lng, p.lat]),
+    [points],
+  );
+  const hasMapToken = !!getMapboxToken();
+  const lastPoint = points[points.length - 1];
+  const center = lastPoint ? ([lastPoint.lng, lastPoint.lat] as [number, number]) : undefined;
   return (
     <div className="dark relative min-h-screen overflow-hidden bg-background text-foreground">
       <div
