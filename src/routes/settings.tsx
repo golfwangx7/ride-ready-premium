@@ -23,6 +23,7 @@ import { useSocials, SocialEditor } from "@/components/socials";
 import { useProfile } from "@/context/profile-context";
 import { useI18n, LANG_OPTIONS, type Lang } from "@/context/i18n-context";
 import { usePremium } from "@/context/premium-context";
+import { LanguagePicker } from "@/components/language-picker";
 
 export const Route = createFileRoute("/settings")({
   component: Settings,
@@ -40,6 +41,7 @@ function Settings() {
   const [units, setUnits] = useState<"km" | "mi">("km");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
+  const [langPickerOpen, setLangPickerOpen] = useState(false);
   const [devMode, setDevMode] = useState(false);
   const [versionTaps, setVersionTaps] = useState(0);
 
@@ -109,13 +111,11 @@ function Settings() {
 
         {/* App */}
         <Group title={t("settings.app")} delay={140}>
-          <SegmentRow
+          <Row
             icon={<Globe className="h-4 w-4" />}
             label={t("settings.language")}
-            options={LANG_OPTIONS.map((o) => o.code)}
-            optionLabels={Object.fromEntries(LANG_OPTIONS.map((o) => [o.code, o.label]))}
-            value={lang}
-            onChange={(v) => setLang(v as Lang)}
+            hint={LANG_OPTIONS.find((o) => o.code === lang)?.label ?? lang}
+            onClick={() => setLangPickerOpen(true)}
           />
           <SegmentRow
             icon={<Gauge className="h-4 w-4" />}
@@ -252,6 +252,7 @@ function Settings() {
         onClose={() => setEditingSocials(false)}
         onSave={setSocials}
       />
+      <LanguagePicker open={langPickerOpen} onClose={() => setLangPickerOpen(false)} />
 
       <DeleteDialog open={confirmDelete} onClose={() => setConfirmDelete(false)} />
       <SupportSheet open={supportOpen} onClose={() => setSupportOpen(false)} />
