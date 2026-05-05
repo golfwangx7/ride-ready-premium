@@ -235,3 +235,96 @@ function StatCard({
     </div>
   );
 }
+
+const STOP_KINDS: { kind: StopKind; label: string; icon: React.ReactNode }[] = [
+  { kind: "fuel", label: "Fuel", icon: <Fuel className="h-3.5 w-3.5" /> },
+  { kind: "break", label: "Break", icon: <Coffee className="h-3.5 w-3.5" /> },
+  { kind: "food", label: "Food", icon: <Utensils className="h-3.5 w-3.5" /> },
+  { kind: "police", label: "Police", icon: <Shield className="h-3.5 w-3.5" /> },
+  { kind: "other", label: "Other", icon: <MoreHorizontal className="h-3.5 w-3.5" /> },
+];
+
+function StopsEditor({
+  stops,
+  onAdd,
+  onRemove,
+}: {
+  stops: { id: string; kind: StopKind; note?: string }[];
+  onAdd: (kind: StopKind) => void;
+  onRemove: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const counts = stops.reduce<Record<string, number>>((acc, s) => {
+    acc[s.kind] = (acc[s.kind] ?? 0) + 1;
+    return acc;
+  }, {});
+  return (
+    <section className="animate-fade-up mt-5" style={{ animationDelay: "360ms" }}>
+      <div className="rounded-2xl border border-border bg-card/40 p-4 backdrop-blur-md">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Ride stops</p>
+            <p className="mt-0.5 font-display text-sm font-medium">
+              {stops.length === 0 ? "No stops logged" : `${stops.length} stop${stops.length > 1 ? "s" : ""}`}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11px] font-medium text-primary"
+          >
+            <Plus className="h-3 w-3" />
+            Add
+          </button>
+        </div>
+
+        {open && (
+          <div className="mt-4 grid grid-cols-5 gap-2">
+            {STOP_KINDS.map((s) => (
+              <button
+                key={s.kind}
+                type="button"
+                onClick={() => onAdd(s.kind)}
+                className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-background/40 px-2 py-2.5 text-[10px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+              >
+                {s.icon}
+                {s.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {stops.length > 0 && (
+          <ul className="mt-3 space-y-1.5">
+            {stops.map((s) => {
+              const meta = STOP_KINDS.find((k) => k.kind === s.kind);
+              return (
+                <li key={s.id} className="flex items-center gap-2 rounded-xl border border-border bg-background/40 px-3 py-2 text-[12px]">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/15 text-primary">
+                    {meta?.icon}
+                  </span>
+                  <span className="flex-1 font-medium capitalize">{meta?.label ?? s.kind}</span>
+                  <button
+                    type="button"
+                    onClick={() => onRemove(s.id)}
+                    className="flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground hover:text-destructive"
+                    aria-label="Remove stop"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {Object.keys(counts).length > 0 && (
+          <p className="mt-3 text-[10px] text-muted-foreground">
+            {Object.entries(counts).map(([k, n]) => `${n} ${k}`).join(" · ")}
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
+
